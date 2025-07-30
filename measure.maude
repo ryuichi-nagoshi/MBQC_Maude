@@ -162,16 +162,12 @@ mod COMMAND is
 
     ------------------------------------------------------------
     --- entanglement command
-    op gatherEnt : PNat List{TRIV2PairPP} Vect -> Vect . 
+    op Ecmd : PNat List{TRIV2PairPP} Vect -> Vect . 
     
     var LPIJ : List{TRIV2PairPP} .
     
-    eq gatherEnt(N, nil, V) = V .
-    eq gatherEnt(N, (< N1 & N2 >  LPIJ), V) = gatherEnt(N, LPIJ, CZ(N1, N2, N) x V) .
-
-    op Ecmd : PNat List{TRIV2PairPP} Vect -> Vect .
-    eq Ecmd(N, LPIJ, V) = gatherEnt(N, LPIJ, V) .
-
+    eq Ecmd(N, nil, V) = V .
+    eq Ecmd(N, (< N1 & N2 >  LPIJ), V) = Ecmd(N, LPIJ, CZ(N1, N2, N) x V) .
 
 endm
 
