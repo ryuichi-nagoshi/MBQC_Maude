@@ -1,0 +1,114 @@
+load qc.maude
+
+
+fth TRIV is 
+	sort Elt .
+endfth
+
+fmod LIST-GENERIC{X :: TRIV} is
+    sort List{X} .
+    subsort X$Elt < List{X} .
+    
+    op nil : -> List{X} [ctor] .
+    op _ _ : List{X} List{X} -> List{X} [assoc ctor id: nil] . 
+endfm
+-----------------------------------------
+-----------------------------------------
+
+fmod BIT is 
+    sort Bit .
+    ops nullB oneB zeroB : -> Bit [ctor] .
+    op not : Bit -> Bit .
+    op _+_ : Bit Bit -> Bit .
+    
+    var B : Bit .
+
+    --- not
+    eq not(nullB) = nullB .
+    eq not(zeroB) = oneB .
+    eq not(oneB) = zeroB .
+
+    --- +
+    eq zeroB + B = B .
+    eq oneB + zeroB = oneB .
+    eq oneB + oneB = zeroB .
+
+endfm
+
+view TRIV2BIT from TRIV to BIT is ---LIST-GENERIC{TRIV2BIT}
+    sort Elt to Bit .
+endv
+
+-----------------------------------------
+-----------------------------------------
+
+view TRIV2PNAT from TRIV to PNAT is ---LIST-GENERIC{TRIV2PNAT}
+    sort Elt to PNat .
+endv
+
+-----------------------------------------
+-----------------------------------------
+
+view TRIV2VECT from TRIV to MAT is --- LIST-GENERIC{TRIV2VECT}
+    sort Elt to Vect .
+endv
+
+-----------------------------------------
+-----------------------------------------
+
+fmod PAIRBV is
+    pr QC .
+    pr LIST-GENERIC{TRIV2BIT} .
+
+    sort PairBV .
+    op <_,_> : List{TRIV2BIT} Vect -> PairBV . 
+endfm 
+
+view TRIV2PAIRBV from TRIV to PAIRBV is --- LIST-GENERIC{TRIV2PAIRBV}
+    sort Elt to PairBV .
+endv
+
+-----------------------------------------
+-----------------------------------------
+fmod PAIRPV is ---PNat and Vect
+    pr QC .
+    sort PairPV .
+    op <_@_> : PNat Vect -> PairPV .
+endfm
+
+view TRIV2PAIRPV from TRIV to PAIRPV is --- LIST-GENERIC{TRIV2PAIRPV}
+    sort Elt to PairPV .
+endv
+
+
+-----------------------------------------
+-----------------------------------------
+fmod PairPP is ---  entanglement pair
+    pr QC .
+    sort PairPP .
+    
+    op <_&_> : PNat PNat -> PairPP .
+endfm 
+
+view TRIV2PairPP from TRIV to PairPP is --- LIST-GENERIC{TRIV2PairPP}
+    sort Elt to PairPP .
+endv
+
+-----------------------------------------
+-----------------------------------------
+
+fmod OUTCOME is 
+    pr QC .
+    pr LIST-GENERIC{TRIV2BIT} .
+    pr LIST-GENERIC{TRIV2PNAT} .
+
+    sort Outcome .
+    op [_,_,_] : List{TRIV2BIT} List{TRIV2PNAT} Vect -> Outcome . 
+
+endfm 
+
+
+view TRIV2OUTCOME from TRIV to OUTCOME is  --- LIST-GENERIC{TRIV2OUTCOME}
+    sort Elt to Outcome .
+endv
+

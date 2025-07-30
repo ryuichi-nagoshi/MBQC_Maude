@@ -1,0 +1,576 @@
+load cpx.maude
+
+fmod MAT is
+    pr CPX .
+
+    sorts Ket Bra Vect2 Vect4 Vect8 Vect CoVect2 CoVect4 CoVect8 CoVect Mat2 Mat4 Mat8 Mat .
+    sorts Vect16 Vect32 CoVect16 CoVect32 Mat16 Mat32 . 
+    subsort Ket < Vect2 < Vect .
+    subsort Vect4 < Vect .
+    subsort Vect8 < Vect .
+    subsort Vect16 < Vect . 
+    subsort Vect32 < Vect . 
+    subsort Bra < CoVect2 < CoVect .
+    subsort CoVect4 < CoVect .
+    subsort CoVect8 < CoVect .
+    subsort CoVect16 < CoVect . 
+    subsort CoVect32 < CoVect . 
+    subsort Mat2 < Mat .
+    subsort Mat4 < Mat .
+    subsort Mat8 < Mat .
+    subsort Mat16 < Mat .   
+    subsort Mat32 < Mat .   
+
+    --- basis vectors
+    ops |0> |1> : -> Ket [ctor] .
+    --- basis covectors
+    ops <0| <1| : -> Bra [ctor] .
+
+    op O2   : -> Vect2 [ctor] .
+    op O4   : -> Vect4 [ctor] .
+    op O8   : -> Vect8 [ctor] .
+    op O16  : -> Vect16 [ctor] .
+    op O32  : -> Vect32 [ctor] .
+    op O    : -> Vect [ctor] .
+    --- basic matrices
+    ops |0><0| |0><1| |1><0| |1><1| : -> Mat2 .
+    --- abbreviations for basic matrices
+    eq |0><0| = |0> x <0| .
+    eq |0><1| = |0> x <1| .
+    eq |1><0| = |1> x <0| .
+    eq |1><1| = |1> x <1| .
+    --- adjoint
+    op _^+ : Vect -> CoVect .
+    op _^+ : CoVect -> Vect .
+    op _^+ : Mat -> Mat .
+    --- identity matrix
+    op I : -> Mat2 .
+    --- scalar multiplication with matrix
+    op _._ : Cpx Vect2 -> Vect2 [ctor prec 31] .
+    op _._ : Cpx Vect4 -> Vect4 [prec 31] .
+    op _._ : Cpx Vect8 -> Vect8 [prec 31] .
+    op _._ : Cpx Vect16 -> Vect16 [prec 31] .   
+    op _._ : Cpx Vect32 -> Vect32 [prec 31] .   
+    op _._ : Cpx CoVect2 -> CoVect2 [ctor prec 31] .
+    op _._ : Cpx CoVect4 -> CoVect4 [ctor prec 31] .
+    op _._ : Cpx CoVect8 -> CoVect8 [ctor prec 31] .
+    op _._ : Cpx CoVect16 -> CoVect16 [ctor prec 31] .  
+    op _._ : Cpx CoVect32 -> CoVect32 [ctor prec 31] .  
+    op _._ : Cpx Mat2 -> Mat2 [prec 31] .
+    op _._ : Cpx Mat4 -> Mat4 [prec 31] .
+    op _._ : Cpx Mat8 -> Mat8 [prec 31] .
+    op _._ : Cpx Mat16 -> Mat16 [prec 31] .  
+    op _._ : Cpx Mat32 -> Mat32 [prec 31] .   
+    --- matrix addition
+    op _+_ : Vect2 Vect2 -> Vect2 [ctor comm assoc prec 33] .
+    op _+_ : Vect4 Vect4 -> Vect4 [comm assoc prec 33] .
+    op _+_ : Vect8 Vect8 -> Vect8 [comm assoc prec 33] .
+    op _+_ : Vect16 Vect16 -> Vect16 [comm assoc prec 33] .  
+    op _+_ : Vect32 Vect32 -> Vect32 [comm assoc prec 33] .  
+    op _+_ : CoVect2 CoVect2 -> CoVect2 [ctor comm assoc prec 33] .
+    op _+_ : CoVect4 CoVect4 -> CoVect4 [ctor comm assoc prec 33] . --- ctor?
+    op _+_ : CoVect8 CoVect8 -> CoVect8 [comm assoc prec 33] .
+    op _+_ : CoVect16 CoVect16 -> CoVect16 [comm assoc prec 33] .     
+    op _+_ : CoVect32 CoVect32 -> CoVect32 [comm assoc prec 33] .      
+    op _+_ : Mat2 Mat2 -> Mat2 [comm assoc prec 33] .
+    op _+_ : Mat4 Mat4 -> Mat4 [comm assoc prec 33] .
+    op _+_ : Mat8 Mat8 -> Mat8 [comm assoc prec 33] .
+    op _+_ : Mat16 Mat16 -> Mat16 [comm assoc prec 33] .      
+    op _+_ : Mat32 Mat32 -> Mat32 [comm assoc prec 33] .      
+    --- matrix product
+    op _x_ : Mat2 Vect2 -> Vect2 [ctor prec 31] .
+    op _x_ : Mat4 Vect4 -> Vect4 [ctor prec 31] .
+    op _x_ : Mat8 Vect8 -> Vect8 [ctor prec 31] .
+    op _x_ : Mat16 Vect16 -> Vect16 [ctor prec 31] .    
+    op _x_ : Mat32 Vect32 -> Vect32 [ctor prec 31] .    
+    op _x_ : Vect2 CoVect2 -> Mat2 [ctor prec 31] .
+    op _x_ : CoVect2 Vect2 -> Cpx [ctor prec 31] .
+
+    op _x_ : CoVect2 Mat2 -> CoVect2 [ctor prec 31] .
+    op _x_ : CoVect4 Mat4 -> CoVect4 [ctor prec 31] .
+    op _x_ : CoVect8 Mat8 -> CoVect8 [ctor prec 31] .
+
+    op _x_ : Mat2 Mat2 -> Mat2 [assoc prec 31] .
+    op _x_ : Mat4 Mat4 -> Mat4 [assoc prec 31] .
+    op _x_ : Mat8 Mat8 -> Mat8 [assoc prec 31] .
+    op _x_ : Mat16 Mat16 -> Mat16 [assoc prec 31] . 
+    op _x_ : Mat32 Mat32 -> Mat32 [assoc prec 31] .    
+    --- tensor product
+    op _(x)_ : Vect2 Vect2 -> Vect4 [assoc prec 31] .
+    op _(x)_ : Vect2 Vect4 -> Vect8 [assoc prec 31] .
+    op _(x)_ : Vect4 Vect2 -> Vect8 [assoc prec 31] .
+
+    --- new op _(x)_
+    op _(x)_ : Vect4 Vect4 -> Vect16 [assoc prec 31] . 
+    op _(x)_ : Vect2 Vect8 -> Vect16 [assoc prec 31] . 
+    op _(x)_ : Vect8 Vect2 -> Vect16 [assoc prec 31] . 
+    op _(x)_ : Vect4 Vect8 -> Vect32 [assoc prec 31] . 
+    op _(x)_ : Vect8 Vect4 -> Vect32 [assoc prec 31] . 
+    op _(x)_ : Vect2 Vect16 -> Vect32 [assoc prec 31] .
+    op _(x)_ : Vect16 Vect2 -> Vect32 [assoc prec 31] .
+    ---
+
+    op _(x)_ : Vect Vect -> Vect [assoc prec 31] . ---add 5/28
+    op _(x)_ : CoVect2 CoVect2 -> CoVect4 [assoc prec 31] .
+    op _(x)_ : CoVect2 CoVect4 -> CoVect8 [assoc prec 31] .
+    op _(x)_ : CoVect4 CoVect2 -> CoVect8 [assoc prec 31] .
+
+    ---new op _(x)_
+    op _(x)_ : CoVect4 CoVect4 -> CoVect16 [assoc prec 31] .
+    op _(x)_ : CoVect2 CoVect8 -> CoVect16 [assoc prec 31] .
+    op _(x)_ : CoVect8 CoVect2 -> CoVect16 [assoc prec 31] .
+    op _(x)_ : CoVect4 CoVect8 -> CoVect32 [assoc prec 31] .
+    op _(x)_ : CoVect8 CoVect4 -> CoVect32 [assoc prec 31] .
+    op _(x)_ : CoVect2 CoVect16 -> CoVect32 [assoc prec 31] .
+    op _(x)_ : CoVect16 CoVect2 -> CoVect32 [assoc prec 31] .
+    ---
+
+    op _(x)_ : Mat2 Mat2 -> Mat4 [assoc prec 31] .
+    op _(x)_ : Mat2 Mat4 -> Mat8 [assoc prec 31] .
+    op _(x)_ : Mat4 Mat2 -> Mat8 [assoc prec 31] .
+
+    ---new _(x)_ Mat
+    op _(x)_ : Mat4 Mat4 -> Mat16 [assoc prec 31] .
+    op _(x)_ : Mat2 Mat8 -> Mat16 [assoc prec 31] .
+    op _(x)_ : Mat8 Mat2 -> Mat16 [assoc prec 31] .
+    op _(x)_ : Mat4 Mat8 -> Mat32 [assoc prec 31] .
+    op _(x)_ : Mat8 Mat4 -> Mat32 [assoc prec 31] .
+    op _(x)_ : Mat2 Mat16 -> Mat32 [assoc prec 31] .
+    op _(x)_ : Mat16 Mat2 -> Mat32 [assoc prec 31] .    
+    ---
+
+    vars C C1 C2 : Cpx .
+    vars K K1 K2 : Ket .
+    vars V V1 V2 V3 V4 : Vect2 .
+    vars V' V1' V2' V3' : Vect4 .
+    vars V'' V1'' V2'' V3'' : Vect8 .
+    vars V''' V1''' V2''' V3''' : Vect16 .  
+    vars V'''' V1'''' V2'''' V3'''' : Vect32 .  
+    vars B B1 B2 : Bra .
+    vars CV CV1 CV2 CV3 : CoVect2 .
+    vars CV' CV1' CV2' CV3' : CoVect4 .
+    vars CV'' CV1'' CV2'' CV3'' : CoVect8 .
+    vars CV''' CV1''' CV2''' CV3''' : CoVect16 .    
+    vars CV'''' CV1'''' CV2'''' CV3'''' : CoVect32 .    
+    vars M M1 M2 M3 M4 : Mat2 .
+    vars M' M1' M2' M3' M4' : Mat4 .
+    vars M'' M1'' M2'' M3'' M4'' : Mat8 .
+    vars M''' M1''' M2''' M3''' M4''' : Mat16 .     
+    vars M'''' M1'''' M2'''' M3'''' M4'''' : Mat32 .    
+    vars VV VV1 VV2 VV3 : Vect .
+    vars MM MM1 MM2 MM3 MM4 : Mat .
+
+    --- zero vector
+    eq 0 . V = O2 .
+    eq C . O2 = O2 .
+    eq O2 + V = V .
+    eq M x O2 = O2 .
+    eq V (x) O2 = O4 .
+    eq O2 (x) V = O4 .
+    eq 0 . V' = O4 .  
+    eq C . O4 = O4 .
+    eq O4 + V' = V' .
+    eq M' x O4 = O4 .
+    eq V' (x) O2 = O8 .
+    eq O2 (x) V' = O8 .
+    eq 0 . V'' = O8 .
+    eq C . O8 = O8 .
+    eq O8 + V'' = V'' .
+    eq M'' x O8 = O8 .
+    eq V (x) O4 = O8 .
+    eq O4 (x) V = O8 .
+    eq 0 . V = O .
+    eq O + V = V .
+    eq V + O = V .
+    eq O8 + V'' = V'' .
+    eq V'' + O8 = V'' .
+    
+    eq C . O16 = O16 . 
+    eq C . O32 = O32 .
+
+    eq M''' x O16 = O16 .
+    eq M'''' x O32 = O32 .
+
+    eq O16 + V'''  = V''' .
+    eq V''' + O16  = V''' .
+    eq O32 + V'''' = V'''' . 
+    eq V'''' + O32 = V'''' .
+ 
+    eq O4 (x) V' = O16 .
+    eq V' (x) O4 = O16 .
+    eq O2 (x) V''' = O32 .
+    eq V''' (x) O2 = O32 . 
+    eq O4  (x) V''  = O32 .  
+    eq V''  (x) O4  = O32 . 
+    eq O8  (x) V'  = O32 .  
+    eq V'  (x) O8  = O32 . 
+    eq O16 (x) V = O32 .
+    eq V (x) O16 = O32 .
+
+    --- Vect* (x) O*
+    eq V (x) O8 = O16 .
+    eq V (x) O16 = O32 .
+    eq V' (x) O4 = O16 .
+    eq V' (x) O8 = O32 .
+    eq V'' (x) O2 = O16 .
+    eq V'' (x) O4 = O32 .
+    eq V''' (x) O2 = O32 .
+
+    --- O* (x) Vect*
+    eq O2 (x) V'' = O16 .
+    eq O2 (x) V''' = O32 .
+    eq O4 (x) V' = O16 .
+    eq O4 (x) V'' = O32 .
+    eq O8 (x) V = O16 .
+    eq O8 (x) V' = O32 .
+    eq O16 (x) V = O32 .
+    
+    --- O* (x) O*
+    eq O2 (x) O2 = O4 .
+    eq O2 (x) O4 = O8 .
+    eq O2 (x) O8 = O16 .
+    eq O2 (x) O16 = O32 .
+    eq O4 (x) O2 = O8 .
+    eq O4 (x) O4 = O16 .
+    eq O4 (x) O8 = O32 .
+    eq O8 (x) O2 = O16 .
+    eq O8 (x) O4 = O32 .
+    eq O16 (x) O2 = O32 .
+    ------------------------
+    ------------------------
+
+    --- identity matrix properties
+    eq [mul-I1] : I x M = M .
+    eq [mul-I2] : M x I = M .
+
+    --- multiplication distributes over addition
+    eq [dist-mul-V1] : M x (V1 + V2) = M x V1 + M x V2 .
+    eq [dist-mul-V2] : (M1 + M2) x V = M1 x V + M2 x V .
+    eq [dist-mul-V1] : M' x (V1' + V2') = M' x V1' + M' x V2' .
+    eq [dist-mul-V2] : (M1' + M2') x V' = M1' x V' + M2' x V' .
+    eq [dist-mul-V1] : M'' x (V1'' + V2'') = M'' x V1'' + M'' x V2'' .
+    eq [dist-mul-V2] : (M1'' + M2'') x V'' = M1'' x V'' + M2'' x V'' .
+    eq [dist-mul-V1] : M''' x (V1''' + V2''') = M''' x V1''' + M''' x V2''' .  
+    eq [dist-mul-V2] : (M1''' + M2''') x V''' = M1''' x V''' + M2''' x V''' .  
+    eq [dist-mul-V1] : M'''' x (V1'''' + V2'''') = M'''' x V1'''' + M'''' x V2'''' .    
+    eq [dist-mul-V2] : (M1'''' + M2'''') x V'''' = M1'''' x V'''' + M2'''' x V'''' .    
+    eq [dist-mul-V1] : M' x (V1''' + V2''') = M' x V1''' + M' x V2''' .
+    eq [dist-mul-V1] : M'' x (V1''' + V2''') = M'' x V1''' + M'' x V2''' .
+
+
+    eq [dist-mul-CV1] : V x (CV1 + CV2) = V x CV1 + V x CV2 .
+    eq [dist-mul-CV2] : (V1 + V2) x CV = V1 x CV + V2 x CV .
+    eq [dist-mul-CV1] : V' x (CV1' + CV2') = V' x CV1' + V' x CV2' .
+    eq [dist-mul-CV2] : (V1' + V2') x CV' = V1' x CV' + V2' x CV' .
+    eq [dist-mul-CV1] : V'' x (CV1'' + CV2'') = V'' x CV1'' + V'' x CV2'' .
+    eq [dist-mul-CV2] : (V1'' + V2'') x CV'' = V1'' x CV'' + V2'' x CV'' .
+    eq [dist-mul-CV1] : V''' x (CV1''' + CV2''') = V''' x CV1''' + V''' x CV2''' .  
+    eq [dist-mul-CV2] : (V1''' + V2''') x CV''' = V1''' x CV''' + V2''' x CV''' .   
+
+    eq [dist-mul-M1] : M1 x (M2 + M3) = M1 x M2 + M1 x M3 .
+    eq [dist-mul-M2] : (M1 + M2) x M3 = M1 x M3 + M2 x M3 .
+    eq [dist-mul-M1] : M1' x (M2' + M3') = M1' x M2' + M1' x M3' .
+    eq [dist-mul-M2] : (M1' + M2') x M3' = M1' x M3' + M2' x M3' .
+    eq [dist-mul-M1] : M1'' x (M2'' + M3'') = M1'' x M2'' + M1'' x M3'' .
+    eq [dist-mul-M2] : (M1'' + M2'') x M3'' = M1'' x M3'' + M2'' x M3'' .
+    eq [dist-mul-M1] : M1''' x (M2''' + M3''') = M1''' x M2''' + M1''' x M3''' .
+    eq [dist-mul-M2] : (M1''' + M2''') x M3''' = M1''' x M3''' + M2''' x M3''' .
+
+    --- scalar normal forms
+    eq [scalar-V1] : 1 . V = V .
+    eq [scalar-V2] : C1 . (C2 . V) = (C1 .* C2) . V .
+    eq [scalar-V3] : C . (V1 + V2) = C . V1 + C . V2 .
+    eq [scalar-V1] : 1 . V' = V' .
+    eq [scalar-V2] : C1 . (C2 . V') = (C1 .* C2) . V' .
+    eq [scalar-V3] : C . (V1' + V2') = C . V1' + C . V2' .
+    eq [scalar-V1] : 1 . V'' = V'' .
+    eq [scalar-V2] : C1 . (C2 . V'') = (C1 .* C2) . V'' .
+    eq [scalar-V3] : C . (V1'' + V2'') = C . V1'' + C . V2'' .
+    ---- 6/10
+    eq [scalar-V1] : 1 . V''' = V''' .
+    eq [scalar-V2] : C1 . (C2 . V''') = (C1 .* C2) . V''' .
+    eq [scalar-V3] : C . (V1''' + V2''') = C . V1''' + C . V2''' .
+    --- 6/14
+    eq [scalar-V1] : 1 . V'''' = V'''' .
+    eq [scalar-V2] : C1 . (C2 . V'''') = (C1 .* C2) . V'''' .
+    eq [scalar-V3] : C . (V1'''' + V2'''') = C . V1'''' + C . V2'''' .
+    ---
+    eq [ad-hoc1] : (C1 . VV) + (C2 . VV) = (C1 .+ C2) . VV . 
+    eq [ad-hoc2] : C .+ (.- C) = 0 . 
+    eq [ad-hoc3] : 0 . V = O2 . 
+    eq [ad-hoc4] : 0 . V' = O4 . 
+    eq [ad-hoc5] : 0 . V'' = O8 .    
+    eq [ad-hoc5] : 0 . V''' = O16 .
+    eq [ad-hoc5] : 0 . V'''' = O32 . 
+
+    eq [scalar-CV1] : 1 . CV = CV .
+    eq [scalar-CV2] : C1 . (C2 . CV) = (C1 .* C2) . CV .
+    eq [scalar-CV3] : C . (CV1 + CV2) = C . CV1 + C . CV2 .
+
+    eq [scalar-M1] : 1 . M = M .
+    eq [scalar-M2] : C1 . (C2 . M) = (C1 .* C2) . M .
+    eq [scalar-M3] : C . (M1 + M2) = C . M1 + C . M2 .
+    eq [scalar-M1] : 1 . M' = M' .
+    eq [scalar-M2] : C1 . (C2 . M') = (C1 .* C2) . M' .
+    eq [scalar-M3] : C . (M1' + M2') = C . M1' + C . M2' .
+    eq [scalar-M1] : 1 . M'' = M'' .
+    eq [scalar-M2] : C1 . (C2 . M'') = (C1 .* C2) . M'' .
+    eq [scalar-M3] : C . (M1'' + M2'') = C . M1'' + C . M2'' .
+    eq [scalar-M1] : 1 . M''' = M''' .
+    eq [scalar-M2] : C1 . (C2 . M''') = (C1 .* C2) . M''' .
+    eq [scalar-M3] : C . (M1''' + M2''') = C . M1''' + C . M2''' .
+    eq [scalar-M1] : 1 . M'''' = M'''' .
+    eq [scalar-M2] : C1 . (C2 . M'''') = (C1 .* C2) . M'''' .
+    eq [scalar-M3] : C . (M1'''' + M2'''') = C . M1'''' + C . M2'''' .
+
+    --- additive normal forms
+    eq [add-M1] : M + M = 2 . M .
+    eq [add-M2] : (C . M) + M = (C .+ 1) . M .
+    eq [add-M3] : (C1 . M) + (C2 . M) = (C1 .+ C2) . M .
+    
+    --- multiplicative normal forms
+    eq [mul-MV1] : (C . M) x V = C . (M x V) .
+    eq [mul-MV2] : M x (C . V) = C . (M x V) .
+    eq [mul-MV1] : (C . M') x V' = C . (M' x V') .
+    eq [mul-MV2] : M' x (C . V') = C . (M' x V') .
+    eq [mul-MV1] : (C . M'') x V'' = C . (M'' x V'') .
+    eq [mul-MV2] : M'' x (C . V'') = C . (M'' x V'') .
+    eq [mul-MV1] : (C . M''') x V''' = C . (M''' x V''') .
+    eq [mul-MV2] : M''' x (C . V''') = C . (M''' x V''') .
+    eq [mul-MV1] : (C . M'''') x V'''' = C . (M'''' x V'''') .
+    eq [mul-MV2] : M'''' x (C . V'''') = C . (M'''' x V'''') .    
+    
+    eq [mul-MV2] : M' x (C . V''') = C . (M' x V''') .
+    eq [mul-MV2] : M'' x (C . V''') = C . (M'' x V''') .
+    
+    eq [mul-MV3] : (MM1 (x) MM2) x (VV1 (x) VV2) = (MM1 x VV1) (x) (MM2 x VV2) .
+    eq [mul-MV3-1] : ((K1 x B1) (x) M2) x (K2 (x) V2) = ((K1 x B1) x K2) (x) (M2 x V2) .
+    eq [mul-MV3-2] : (I (x) M2) x (K2 (x) V2) = K2 (x) (M2 x V2) .
+    eq (K x <0|) x |0> = K .
+    eq (K x <1|) x |0> = O2 .
+    eq (K x <0|) x |1> = O2 .
+    eq (K x <1|) x |1> = K .
+    eq [mul-MV5] : I x K = K .
+    eq [mul-MV6] : (M1 x M2) x V = M1 x (M2 x V) .
+    eq [mul-MV6] : (M1' x M2') x V' = M1' x (M2' x V') .
+    eq [mul-MV6] : (M1'' x M2'') x V'' = M1'' x (M2'' x V'') .
+    eq [mul-MV6] : (M1''' x M2''') x V''' = M1''' x (M2''' x V''') .
+    eq [mul-MV6] : (M1'''' x M2'''') x V'''' = M1'''' x (M2'''' x V'''') .
+
+    eq [mul-VCV1] : (C . V) x CV = C . (V x CV) .
+    eq [mul-VCV2] : V x (C . CV) = C . (V x CV) .   
+    eq [mul-VCV3] : (K (x) V) x (B (x) CV) = (K x B) (x) (V x CV) .
+
+    eq [mul-MM1] : (C . M1) x M2 = C . (M1 x M2) .
+    eq [mul-MM2] : M1 x (C . M2) = C . (M1 x M2) .
+    eq [mul-MM1] : (C . M1') x M2' = C . (M1' x M2') .
+    eq [mul-MM2] : M1' x (C . M2') = C . (M1' x M2') .
+    eq [mul-MM1] : (C . M1'') x M2'' = C . (M1'' x M2'') .
+    eq [mul-MM2] : M1'' x (C . M2'') = C . (M1'' x M2'') .
+    eq [mul-MM1] : (C . M1''') x M2''' = C . (M1''' x M2''') .
+    eq [mul-MM2] : M1''' x (C . M2''') = C . (M1''' x M2''') .
+    --- eq [mul-MM3] : (K1 x B1) x (K2 x B2) = < (B1)^+, K2 > . (K1 x B2) .
+    eq [mul-MM4] : (MM1 (x) MM2) x (MM3 (x) MM4) = (MM1 x MM3) (x) (MM2 x MM4) .  --- befor eq [mul-MM4] : (MM1 (x) MM2) x (M3 (x) M4) = (M1 x M3) (x) (M2 x M4) .
+    --- eq [mul-MM4-1] : ((K1 x B1) (x) M1) x ((K2 x B2) (x) M2) = ((K1 x B1) x (K2 x B2)) (x) (M1 x M2) .
+    --- eq [mul-MM4-2] : ((K1 x B1) (x) M1) x (I (x) M2) = (K1 x B1) (x) (M1 x M2) .
+    --- eq [mul-MM4-3] : (I (x) M1) x ((K2 x B2) (x) M2) = (K2 x B2) (x) (M1 x M2) .
+    eq [mul-MM4-4] : (I (x) M1) x (I (x) M2) = I (x) (M1 x M2) .
+    
+    --- tensor product normal forms
+    eq [tensor-V1] : (C . VV1) (x) VV2 = C . (VV1 (x) VV2) .
+    eq [tensor-V2] : VV1 (x) (C . VV2) = C . (VV1 (x) VV2) .
+
+    eq [tensor-CV1] : (C . CV1) (x) CV2 = C . (CV1 (x) CV2) .
+    eq [tensor-CV2] : CV1 (x) (C . CV2) = C . (CV1 (x) CV2) .
+    
+    eq [tensor-M1] : (C . MM1) (x) MM2 = C . (MM1 (x) MM2) .
+    eq [tensor-M2] : MM1 (x) (C . MM2) = C . (MM1 (x) MM2) .
+    
+    --- tensor distributes over addition
+    eq [dist-tensor-V1] : VV1 (x) (VV2 + VV3) = VV1 (x) VV2 + VV1 (x) VV3 .
+    eq [dist-tensor-V2] : (VV1 + VV2) (x) VV3 = VV1 (x) VV3 + VV2 (x) VV3 .
+    eq [dist-tensor-V1] : VV1 (x) ((C1 . VV2) + (C2 . VV3)) = C1 . (VV1 (x) VV2) + C2 . (VV1 (x) VV3) . ---add 5/28
+
+    eq [dist-tensor-CV1] : CV1 (x) (CV2 + CV3) = CV1 (x) CV2 + CV1 (x) CV3 .
+    eq [dist-tensor-CV2] : (CV1 + CV2) (x) CV3 = CV1 (x) CV3 + CV2 (x) CV3 .
+
+    eq [dist-tensor-M1] : MM (x) (M1 + M2) = MM (x) M1 + MM (x) M2 .
+    eq [dist-tensor-M1] : MM (x) (M1' + M2') = MM (x) M1' + MM (x) M2' .
+    eq [dist-tensor-M1] : MM (x) (M1'' + M2'') = MM (x) M1'' + MM (x) M2'' .
+    eq [dist-tensor-M1] : MM (x) (M1''' + M2''') = MM (x) M1''' + MM (x) M2''' .
+    eq [dist-tensor-M2] : (M1 + M2) (x) MM = M1 (x) MM + M2 (x) MM .
+    eq [dist-tensor-M2] : (M1' + M2') (x) MM = M1' (x) MM + M2' (x) MM .
+    eq [dist-tensor-M2] : (M1'' + M2'') (x) MM = M1'' (x) MM + M2'' (x) MM .
+    eq [dist-tensor-M2] : (M1''' + M2''') (x) MM = M1''' (x) MM + M2''' (x) MM .
+
+    --- M x (C . (V1 + V2)) = C . (M x V1 + M x V2) の形のルールを追加
+    eq M x (C . (V1 + V2)) = C . (M x V1 + M x V2) .
+    eq M' x (C . (V1' + V2')) = C . (M' x V1' + M' x V2') .
+    eq M'' x (C . (V1'' + V2'')) = C . (M'' x V1'' + M'' x V2'') .
+    eq M''' x (C . (V1''' + V2''')) = C . (M''' x V1''' + M''' x V2''') .
+    eq M'''' x (C . (V1'''' + V2'''')) = C . (M'''' x V1'''' + M'''' x V2'''') .
+
+
+
+endfm
+
+fmod MYTRUTH is
+	sort MyBool .
+	ops true false : -> MyBool .
+endfm
+
+fmod PNAT is
+    pr MYTRUTH .
+
+    sort PNat .
+
+    ops 0 1 2 3 4 5 : -> PNat .
+    op suc : PNat -> PNat [iter] .
+    op _-_ : PNat PNat -> PNat .
+    op _+_ : PNat PNat -> PNat .
+    op _>_ : PNat PNat -> MyBool .
+
+    vars N M : PNat .
+
+    eq 0 - N = 0 .
+    eq N - 0 = N .
+    eq suc(N) - suc(M) = N - M .
+    eq 0 + N = N .
+    eq suc(N) + M = suc(N + M) .
+    eq 0 > M = false .
+    eq suc(N) > 0 = true . 
+    eq suc(N) > suc(M) = N > M .
+    eq 1 = suc(0) .
+    eq 2 = suc(1) .
+    eq 3 = suc(2) .
+    eq 4 = suc(3) .
+    eq 5 = suc(4) .
+endfm
+
+fmod QC is
+    pr MAT .
+    pr PNAT .
+
+    op I : PNat -> Mat .
+    op size : Vect -> PNat [memo] .
+    op size : Mat  -> PNat [memo] .
+    mb I(suc(0)) : Mat2 .
+    mb I(2) : Mat4 .
+    mb I(3) : Mat8 .
+    mb I(4) : Mat16 .   
+    mb I(5) : Mat32 .   
+
+    vars C C1 C2 : Cpx .
+    vars K K1 K2 : Ket .
+    vars V V1 V2 V3 : Vect2 .
+    vars V' V1' V2' V3' : Vect4 .
+    vars V'' V1'' V2'' V3'' : Vect8 .
+    vars B B1 B2 : Bra .
+    vars CV CV1 CV2 CV3 : CoVect2 .
+    vars CV' CV1' CV2' CV3' : CoVect4 .
+    vars CV'' CV1'' CV2'' CV3'' : CoVect8 .
+    vars M M1 M2 M3 M4 : Mat2 .
+    vars M' M1' M2' M3' M4' : Mat4 .
+    vars M'' M1'' M2'' M3'' M4'' : Mat8 .
+    vars VV VV1 VV2 VV3 : Vect .
+    vars MM MM1 MM2 MM3 : Mat .
+    vars N N1 N2 N3 : PNat .
+
+    eq  [I1] : I(suc(0)) x V = V .
+    eq  [I2] : I(0) (x) M = M .
+    eq  [I3] : M (x) I(0) = M .
+    eq  [I4] : I(suc(suc(N))) = I(1) (x) I(suc(N)) .
+    eq  [I-test1] : I(0) (x) MM = MM .
+    eq  [I-test1] : MM (x) I(0) = MM .
+    ---eq  [I5] : I(N) x I(N) = I(N) .
+    ---eq  [I6] : (I(N) (x) M1) x (I(N) (x) M2) = I(N) (x) (M1 x M2) .
+    ---eq  [I7] : (M1 (x) I(N)) x (M2 (x) I(N)) = (M1 x M2) (x) I(N) .
+    --- quantum gates
+    ops P0 P1 X Y Z H S Sdg T Tdg : PNat PNat -> Mat . 
+    mb P0(N,0) : Mat2 .
+    mb P0(N,1) : Mat4 .
+    mb P0(N,2) : Mat8 .
+    mb P0(N,3) : Mat16 .    
+    mb P0(N,4) : Mat32 .    
+
+    mb P1(N,0) : Mat2 .
+    mb P1(N,1) : Mat4 .
+    mb P1(N,2) : Mat8 .
+    mb P1(N,3) : Mat16 . 
+    mb P1(N,4) : Mat32 .    
+
+    mb X(N,0) : Mat2 .
+    mb X(N,1) : Mat4 .
+    mb X(N,2) : Mat8 .
+    mb X(N,3) : Mat16 . 
+    mb X(N,4) : Mat32 . 
+
+
+    mb Y(N,0) : Mat2 .
+    mb Y(N,1) : Mat4 .
+    mb Y(N,2) : Mat8 .
+    mb Y(N,3) : Mat16 . 
+    mb Y(N,4) : Mat32 . 
+
+    mb Z(N,0) : Mat2 .
+    mb Z(N,1) : Mat4 .
+    mb Z(N,2) : Mat8 .
+    mb Z(N,3) : Mat16 . 
+    mb Z(N,4) : Mat32 . 
+
+    mb H(N,0) : Mat2 .
+    mb H(N,1) : Mat4 .
+    mb H(N,2) : Mat8 .
+    mb H(N,3) : Mat16 . 
+    mb H(N,4) : Mat32 . 
+
+    0
+    mb S(N,0) : Mat2 .
+    mb S(N,1) : Mat4 .
+    mb S(N,2) : Mat8 .
+    mb S(N,3) : Mat16 .
+    mb S(N,4) : Mat32 .
+
+    mb Sdg(N,0) : Mat2 .
+    mb Sdg(N,1) : Mat4 .
+    mb Sdg(N,2) : Mat8 .
+    mb Sdg(N,3) : Mat16 .
+    mb Sdg(N,4) : Mat32 .
+
+    mb T(N,0) : Mat2 .
+    mb T(N,1) : Mat4 .
+    mb T(N,2) : Mat8 .
+    mb T(N,3) : Mat16 .
+    mb T(N,4) : Mat32 .
+
+    mb Tdg(N,0) : Mat2 .
+    mb Tdg(N,1) : Mat4 .
+    mb Tdg(N,2) : Mat8 .
+    mb Tdg(N,3) : Mat16 .
+    mb Tdg(N,4) : Mat32 .
+
+    ops CX CY CZ SWAP : PNat PNat PNat -> Mat .
+    --- ops CCX CCZ CSWAP : PNat PNat PNat PNat -> Mat .
+
+    --- single-qubit gates
+    eq [P0] : P0(N1,N2) = I(N1) (x) |0><0| (x) I(N2 - N1) .
+    eq [P1] : P1(N1,N2) = I(N1) (x) |1><1| (x) I(N2 - N1) .
+    eq [X]  : X(N1,N2) = I(N1) (x) (|0><1| + |1><0|) (x) I(N2 - N1) .
+    eq [Y]  : Y(N1,N2) = I(N1) (x) ((-1 i) . |0><1| + (1 i) . |1><0|) (x) I(N2 - N1) .
+    eq [Z]  : Z(N1,N2) = I(N1) (x) (|0><0| + (-1) . |1><1|) (x) I(N2 - N1) .
+    eq [H]  : H(N1,N2) = 1 ./ sqrt(2) . (X(N1,N2) + Z(N1,N2)) .
+    eq [S]  : S(N1,N2) = I(N1) (x) (|0><0|  + ((1 i) . |1><1|)) (x) I(N2 - N1) . 
+    eq [Sdg]  : Sdg(N1,N2) = I(N1) (x) (|0><0|  + ((-1 i) . |1><1|)) (x) I(N2 - N1) .
+    eq [T]  : T(N1,N2) = I(N1) (x) (|0><0| + (((1 ./ sqrt(2)) .+ ((1 ./ sqrt(2)) i)) . |1><1|)) (x) I(N2 - N1) .
+    eq [Tdg]  : Tdg(N1,N2) = I(N1) (x) (|0><0| + (((1 ./ sqrt(2)) .+ ((-1 ./ sqrt(2)) i)) . |1><1|)) (x) I(N2 - N1) .
+    --- two-qubit gates
+    eq [CX]    : CX(N1,N2,N3) = (P0(N1,N3) + (P1(N1,N3) x X(N2,N3))) .
+    eq [CY]    : CY(N1,N2,N3) = (P0(N1,N3) + (P1(N1,N3) x Y(N2,N3))) .
+    eq [CZ]    : CZ(N1,N2,N3) = (P0(N1,N3) + (P1(N1,N3) x Z(N2,N3))) .
+    eq [SWAP]  : SWAP(N1,N2,N3) = (CX(N1,N2,N3) x CX(N2,N1,N3) x CX(N1,N2,N3)) .
+
+    --- three-qubit gates
+    --- eq [CCX]   : CCX(N1, N2, N3) = (P0(N1) + (P1(N1) x CX(N2, N3))) .
+    --- eq [CCZ]   : CCZ(N1, N2, N3) = (P0(N1) + (P1(N1) x CZ(N2, N3))) .
+    --- eq [CSWAP] : CSWAP(N1, N2, N3) = (P0(N1) + (P1(N1) x SWAP(N2,N3))) .
+endfm

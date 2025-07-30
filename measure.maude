@@ -1,0 +1,286 @@
+load LIST.maude
+
+fmod MEASURE is
+    pr QC .
+    pr MYTRUTH .
+    pr LIST-GENERIC{TRIV2BIT} .
+    pr LIST-GENERIC{TRIV2PNAT} .
+    pr LIST-GENERIC{TRIV2VECT} .
+    pr LIST-GENERIC{TRIV2PAIRBV} . 
+
+    sort AngReal . 
+
+    ---variables
+    var N N1 N2 N3 : PNat . 
+    var C C1 C2 C3 C4 : Cpx .
+    var V V1 V2 V3 V4 : Vect .
+    var V' V1' V2' V3' : Vect2 .
+    vars V'' V1'' V2'' V3'' : Vect4 .
+    vars V''' V1''' V2''' V3''' : Vect8 .
+    var R R1 R2 R3 R4 : Real .
+    vars M M1 M2 M3 M4 : Mat2 .
+    vars M' M1' M2' M3' M4' : Mat4 .
+    vars M'' M1'' M2'' M3'' M4'' : Mat8 .
+    var LV : List{TRIV2VECT} . 
+    var B B1 B2 B3 : Bit .
+    var LB LB1 LB2 : List{TRIV2BIT} .
+    var PV PV1 PV2 : PairBV .
+    var LPBV : List{TRIV2PAIRBV} .
+
+    ---
+    ops alpha0 alpha1 beta0 beta1 : -> Cpx .
+    eq C .* (alpha0 .* (alpha0)^*) .+ C .* (beta0 .* (beta0)^*) = C .* 1 .
+
+    ---reset
+    op reset : PNat -> List{TRIV2BIT} .
+
+    eq reset(0) = nullB .
+    eq reset(suc(N)) = nullB reset(N) .
+    
+    ---insert
+    op insert : PNat Bit List{TRIV2BIT} -> List{TRIV2BIT} .
+
+    eq insert(0, B,  nullB) = B . 
+    eq insert(0, B, B1  LB) = B  LB .
+    eq insert(suc(N), B, (B1  LB)) = B1  insert(N, B, LB) .
+    
+    ---retrieve
+    op retrieve : PNat List{TRIV2BIT} -> Bit .
+    eq retrieve(0, B  LB) = B .
+    eq retrieve(suc(N), B  LB) = retrieve(N, LB) .
+
+    ---measure command
+    op M : PNat PNat Bit List{TRIV2PAIRBV} AngReal -> List{TRIV2PAIRBV} .
+    op preMeas : PNat PNat AngReal Bit -> Mat .  
+    ops Zbase pi0 pi/2 pi/4 : -> AngReal .
+    var ANG-X : AngReal .
+
+    ---preMeas
+    eq preMeas(N1, N2, Zbase, B) = I(N1) (x) I(N2) .  --- Zbasis
+    eq preMeas(N1, N2, pi0, B) = H(N1,N2) .  --- Xbasis
+    --- pi/2
+    eq preMeas(N1, N2, pi/2, nullB) = H(N1,N2) x Sdg(N1,N2) .
+    eq preMeas(N1, N2, pi/2, zeroB) = H(N1,N2) x Sdg(N1,N2) . 
+    eq preMeas(N1, N2, pi/2, oneB) = H(N1,N2) x S(N1,N2) . 
+    ---pi/4
+    eq preMeas(N1, N2, pi/4, nullB) = H(N1,N2) x Tdg(N1,N2) .
+    eq preMeas(N1, N2, pi/4, zeroB) = H(N1,N2) x Tdg(N1,N2) .
+    eq preMeas(N1, N2, pi/4, oneB) = H(N1,N2) x T(N1,N2) .
+    
+    --- 
+    eq M(N1, N2, B, nil, ANG-X) =  nil .
+
+    ceq M(N1, N2, B, < LB , V >  LPBV, ANG-X) 
+    =  < insert(N1, zeroB, LB), P0(N1,N2) x (preMeas(N1, N2, ANG-X, B) x V) > 
+     < insert(N1, oneB,  LB),P1(N1,N2) x (preMeas(N1, N2, ANG-X, B) x V) > 
+     M(N1, N2, B, LPBV, ANG-X) 
+    if retrieve(N1, LB) == nullB = true .
+
+    --- err
+    ceq M(N1, N2, B, < LB , V >  LPBV, ANG-X) = errCmd if retrieve(N1, LB) == nullB = false .   
+
+
+    ---X?
+    op X? : PNat PNat PNat List{TRIV2PAIRBV} -> List{TRIV2PAIRBV} .
+    op errCmd : -> List{TRIV2PAIRBV} .
+    
+    eq X?(N1, N2, N3, nil) = nil .
+    ceq X?(N1, N2, N3, < LB, V >  LPBV) = errCmd if retrieve(N2,LB) == nullB = true .
+    ceq X?(N1, N2, N3, < LB, V >  LPBV) = < LB, X(N1, N3) x V >  X?(N1, N2, N3, LPBV) if retrieve(N2,LB) == oneB = true .
+    ceq X?(N1, N2, N3, < LB, V >  LPBV) = < LB, V >  X?(N1, N2, N3, LPBV) if retrieve(N2,LB) == zeroB = true .
+
+    ---Z?
+    op Z? : PNat PNat PNat List{TRIV2PAIRBV} -> List{TRIV2PAIRBV} . --- N1: target bit, N2: measured bit ,　N3: V
+
+    eq Z?(N1, N2, N3, nil) = nil .
+    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = errCmd if retrieve(N2,LB) == nullB = true .
+    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = < LB, Z(N1, N3) x V >  Z?(N1, N2, N3, LPBV) if retrieve(N2,LB) == oneB = true .
+    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = < LB, V >  Z?(N1, N2, N3, LPBV) if retrieve(N2,LB) == zeroB = true .
+   
+endfm
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+
+mod COMMAND is 
+
+    pr MEASURE . 
+    pr PAIRPV .
+    pr LIST-GENERIC{TRIV2PAIRPV} . 
+    pr PairPP .
+    pr LIST-GENERIC{TRIV2PairPP} .
+
+
+    sort Err&List .
+    subsort List{TRIV2VECT} < Err&List .
+         
+    ops |+> |-> |psi> : -> Vect . 
+    eq |+> = 1 ./ sqrt(2) . (|0> + |1>) .
+    eq |-> = 1 ./ sqrt(2) . (|0> + (-1 . |1>)) .
+    eq |psi> = alpha0 . |0> + beta0 . |1> .
+
+    var PPV : PairPV .
+    vars N N1 N2 : PNat . 
+    var V V1 V2 : Vect . 
+    var LPPV : List{TRIV2PAIRPV} .
+    var LV : List{TRIV2VECT} . 
+    ------------------------------------------------------------
+    --- N command
+    op errLV : -> Err&List .
+    op errV : -> Vect .
+
+    --- make List |+>
+    op mkLV : PNat -> List{TRIV2VECT} .
+    eq mkLV(0) = |+> .
+    eq mkLV(suc(N)) = |+>  mkLV(N) .
+
+    --- insert
+    op insertLV : PNat Vect Err&List -> Err&List . 
+    
+    eq insertLV(N, V, errLV) = errLV .
+    ceq insertLV(0, V, V1  LV) =  V  LV if V1 == |+> .
+    ceq insertLV(0, V, V1  LV) = errLV if |+> =/= V1 .
+    ceq insertLV(suc(N), V1, V2  LV) = errLV if insertLV(N, V1, LV) == errLV .
+    ceq insertLV(suc(N), V1, V2  LV) = V2  insertLV(N, V1, LV) if insertLV(N, V1, LV) =/= errLV .
+
+    --- cmV
+    op cmV : Err&List -> Vect . 
+    
+    eq cmV(errLV) = errV .
+    eq cmV(nil) = errV .
+    eq cmV(V) = V .
+    eq cmV(V LV) = V (x) cmV(LV) .
+
+    ---gatherInputs
+    op gatherInputs : PNat List{TRIV2PAIRPV} -> Err&List . 
+    eq gatherInputs(N, nil)= mkLV(N) .
+    eq gatherInputs(N, (< N1 @ V >  LPPV))= insertLV(N1, V, gatherInputs(N, LPPV)) .
+
+    --- input
+    op input : PNat List{TRIV2PAIRPV} -> Vect .
+    eq input(N, LPPV) = cmV(gatherInputs(N, LPPV)) .
+
+    ------------------------------------------------------------
+    --- entanglement command
+    op gatherEnt : PNat List{TRIV2PairPP} Vect -> Vect . 
+    
+    var LPIJ : List{TRIV2PairPP} .
+    
+    eq gatherEnt(N, nil, V) = V .
+    eq gatherEnt(N, (< N1 & N2 >  LPIJ), V) = gatherEnt(N, LPIJ, CZ(N1, N2, N) x V) .
+
+    op Ecmd : PNat List{TRIV2PairPP} Vect -> Vect .
+    eq Ecmd(N, LPIJ, V) = gatherEnt(N, LPIJ, V) .
+
+
+endm
+
+
+
+mod POSTPROCESS is
+    pr MEASURE .
+    pr COMMAND .
+    pr LIST-GENERIC{TRIV2OUTCOME} .
+    pr LIST-GENERIC{TRIV2PAIRBV} .
+
+    var N N1 N2 N3 : PNat . 
+    var C C1 C2 C3 C4 : Cpx .
+    var PV PV1 PV2 : PairBV .
+    var B B1 B2 B3 : Bit .
+    var K K1 K2 : Ket .
+    var V V1 V2 V3 V4 : Vect .
+
+    var LV : List{TRIV2VECT} . 
+    var LB LB1 LB2 : List{TRIV2BIT} .
+    var LN : List{TRIV2PNAT} .
+    var LPBV : List{TRIV2PAIRBV} .
+
+  
+    ---inner product
+    op <_|_> : Vect Vect -> Cpx .
+    eq < |0> | |0> > = 1 .
+    eq < |0> | |1> > = 0 .
+    eq < |1> | |0> > = 0 .
+    eq < |1> | |1> > = 1 .
+    eq (< V1 | V2 >)^* = < V2 | V1 > .
+    eq < C . V1 | V2 > = (C)^* .* < V1 | V2 > .
+    eq < V1 | C . V2 > = C .* (< V1 | V2 >) .
+    eq < V1 + V2 | V3 > = < V1 | V3 > .+ < V2 | V3 > .
+    eq < V1 | V2 + V3 > = < V1 | V2 > .+ < V1 | V3 > .
+    eq < V1 (x) V2 | V3 (x) V4 > = < V1 | V3 > .* < V2 | V4 > .
+
+    ---norm
+    op ||_|| : Vect -> Real 
+    eq || V || = sqrt(< V | V >) .
+
+    ------------------------------------------------
+    op traceOut : List{TRIV2PAIRBV} -> List{TRIV2OUTCOME} .
+    eq traceOut(nil) = nil .
+    ceq traceOut(< LB, V >  LPBV) = [LB , ri(LB) ,  ((1 ./ || traceV(V, ri(LB)) ||) . traceV(V, ri(LB)))]  traceOut(LPBV) if not((traceV(V, ri(LB)) == O)) .
+
+    ------------------------------------------------
+    --- remember Indeces
+    op ri   : List{TRIV2BIT} -> List{TRIV2PNAT} .
+    op ri*  : List{TRIV2BIT} PNat -> List{TRIV2PNAT} .
+    
+    eq ri(LB) = ri*(LB, 0) .
+    eq ri*(nil, N) = nil .
+    eq ri*(nullB  LB, N) = N  ri*(LB, suc(N)) .
+    eq ri*(zeroB  LB, N) = ri*(LB, suc(N)) .
+    eq ri*(oneB  LB,  N) = ri*(LB, suc(N)) .
+
+    -------------------------------------------------
+    --- Vect to List
+    op VtoL : Vect -> List{TRIV2VECT} .
+
+    eq VtoL(K) = K .
+    eq VtoL(K (x) V) = K  VtoL(V) .
+
+    --- listToVect 
+    op LtoV : List{TRIV2VECT} -> Vect .
+    op unitV : -> Vect .
+
+    eq LtoV(nil) = unitV .
+    eq LtoV(V) = V .
+    eq LtoV(V1  (V2  LV)) = V1 (x) LtoV(V2  LV) .
+    ---unitV
+    eq V (x) unitV = V .
+    eq unitV (x) V = V .
+
+    ---------------------------------------------------
+    op selectV : List{TRIV2VECT} List{TRIV2PNAT} -> List{TRIV2VECT} .
+    eq selectV(LV, nil) = nil .
+    eq selectV(LV, N  LN) = elementAt(N, LV)  selectV(LV, LN) .
+
+    ---------------------------------------------------
+    op isZVect? : Vect -> MyBool .
+    eq isZVect?(O) = true .
+    eq isZVect?(O2) = true .
+    eq isZVect?(O4) = true .
+    eq isZVect?(O8) = true .
+    eq isZVect?(O16) = true .
+    eq isZVect?(O32) = true .
+    eq isZVect?(V) = false [owise] .
+
+    ----------------------------------------------------
+    op elementAt : PNat List{TRIV2VECT} -> Vect .
+    eq elementAt(0, V  LV) = V .
+    eq elementAt(suc(N), V  LV) = elementAt(N, LV) .
+
+    ----------------------------------------------------
+    op traceV : Vect List{TRIV2PNAT} -> Vect .
+    op traceV2 : Vect List{TRIV2PNAT} -> Vect .
+
+
+    ceq traceV2(V, LN) = O if isZVect?(V) = true .
+    ceq traceV2(V, LN) = LtoV(selectV(VtoL(V), LN)) if isZVect?(V) = false .
+
+
+    eq traceV(V1 + V2, LN) = traceV(V1, LN) + traceV(V2, LN) .
+    eq traceV(C . V, LN) = C . traceV(V, LN) .
+    ceq traceV(V, LN) = O if isZVect?(V) = true .
+    eq traceV(errV, LN) = errV .
+    ceq traceV(V, LN) = traceV2(V, LN) if isZVect?(V) = false /\ (V == errV) = false .
+
+
+endm
