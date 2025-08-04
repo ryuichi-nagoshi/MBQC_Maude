@@ -524,7 +524,7 @@ fmod QC is
     mb H(N,3) : Mat16 . 
     mb H(N,4) : Mat32 . 
 
-    0
+    
     mb S(N,0) : Mat2 .
     mb S(N,1) : Mat4 .
     mb S(N,2) : Mat8 .

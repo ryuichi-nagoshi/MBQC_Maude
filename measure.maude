@@ -206,7 +206,7 @@ mod POSTPROCESS is
     eq < V1 (x) V2 | V3 (x) V4 > = < V1 | V3 > .* < V2 | V4 > .
 
     ---norm
-    op ||_|| : Vect -> Real 
+    op ||_|| : Vect -> Real .
     eq || V || = sqrt(< V | V >) .
 
     ------------------------------------------------
