@@ -1,0 +1,37 @@
+
+load mbqc-lang.maude
+
+mod x-rotation is 
+    pr POSTPROCESS .
+    pr MEASURE .
+    pr MBQC-LANG .
+
+    var V  : Vect .
+    var LB : List{TRIV2BIT} .
+    var LN : List{TRIV2PNAT} .
+    var LOC : List{TRIV2OUTCOME} . 
+
+    --- Target State: Rx(π/2) . |psi>
+    --- Input: |psi> = alpha0 . |0> + beta0 . |1> 
+    op Rx|psi> : -> Vect .
+    eq Rx|psi> =  (alpha0 .* (-1 .* 1 ./ sqrt(2)) i .+ beta0 .* 1 ./ sqrt(2)) . |1> + (alpha0 .* 1 ./ sqrt(2) .+ beta0 .* (-1 .* 1 ./ sqrt(2)) i) . |0> .
+
+    ---checkr
+    op checkRx : List{TRIV2OUTCOME} -> MyBool .
+    eq checkRx((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkRx([LB , LN , V]  LOC) = checkRx(LOC) if | < Rx|psi> | V > |^2 == 1 .
+    ceq checkRx([LB , LN , V]  LOC) = false if | < Rx|psi> | V > |^2 =/= 1 .
+
+    
+endm
+
+
+
+------[Test] x-rotation
+red checkRx(pattern(2, < 0 @ |psi> >,
+            X?(2,1)
+            Z?(2,0)
+            (zeroB, nil)[M(1, -pi/2)](zeroB, 0)
+            (zeroB, nil)[M(0, 0pi)](zeroB, nil)
+            E(1,2) E(0,1)
+        )) .

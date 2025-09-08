@@ -1,0 +1,92 @@
+load mbqc-lang.maude
+
+mod CNOT is 
+    pr POSTPROCESS .
+    pr MEASURE .
+    pr MBQC-LANG .
+
+    var V  : Vect .
+    var LB : List{TRIV2BIT} .
+    var LN : List{TRIV2PNAT} .
+    var LOC : List{TRIV2OUTCOME} . 
+
+    --- Target State 
+    --- Input1: (control = |0>, target = |psi>)
+    --- Input2: (control = |1>, target = |psi>)
+    --- Input3: (control = |+>, target = |psi>)
+    --- Input4: (control = |psi>, target = |0>)
+    --- |psi> = alpha0 . |0> + beta0 . |1>
+    --- Dropped: target=|1> (covered by Input2 with |psi>=|1>)
+
+    ops CNOT|0> CNOT|1> CNOT|+> CNOT|psi> : -> Vect .
+    eq CNOT|0> = alpha0 . (|0> (x) |0>) + beta0 . (|0> (x) |1>) .
+    eq CNOT|1> = alpha0 . (|1> (x) |1>) + beta0 . (|1> (x) |0>) .
+    eq CNOT|+> = 1 ./ sqrt(2) . ((alpha0 . |0> (x) |0>) + (alpha0 . |1> (x) |1>) + (beta0 . |0> (x) |1>) + (beta0 . |1> (x) |0>)) .
+    eq CNOT|psi> = alpha0 . (|0> (x) |0>) + beta0 . (|1> (x) |1>) .
+    
+    
+    --- checker of CNOT|0> (x) |psi>
+    op checkCNOT|0>|psi> : List{TRIV2OUTCOME} -> MyBool .
+    eq checkCNOT|0>|psi>((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkCNOT|0>|psi>([LB , LN , V]  LOC) = checkCNOT|0>|psi>(LOC) if | < CNOT|0> | V > |^2 == 1 .
+    ceq checkCNOT|0>|psi>([LB , LN , V]  LOC) = false if | < CNOT|0> | V > |^2 =/= 1 .
+
+    --- checker of CNOT|1> (x) |psi>
+    op checkCNOT|1>|psi> : List{TRIV2OUTCOME} -> MyBool .
+    eq checkCNOT|1>|psi>((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkCNOT|1>|psi>([LB , LN , V]  LOC) = checkCNOT|1>|psi>(LOC) if | < CNOT|1> | V > |^2 == 1 .
+    ceq checkCNOT|1>|psi>([LB , LN , V]  LOC) = false if | < CNOT|1> | V > |^2 =/= 1 .
+
+    --- checker of CNOT|+> (x) |psi>
+    op checkCNOT|+>|psi> : List{TRIV2OUTCOME} -> MyBool .
+    eq checkCNOT|+>|psi>((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkCNOT|+>|psi>([LB , LN , V]  LOC) = checkCNOT|+>|psi>(LOC) if | < CNOT|+> | V > |^2 == 1 .
+    ceq checkCNOT|+>|psi>([LB , LN , V]  LOC) = false if | < CNOT|+> | V > |^2 =/= 1 .
+
+    --- checker of CNOT|psi> (x) |0>
+    op checkCNOT|psi>|0> : List{TRIV2OUTCOME} -> MyBool .
+    eq checkCNOT|psi>|0>((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkCNOT|psi>|0>([LB , LN , V]  LOC) = checkCNOT|psi>|0>(LOC) if | < CNOT|psi> | V > |^2 == 1 .
+    ceq checkCNOT|psi>|0>([LB , LN , V]  LOC) = false if | < CNOT|psi> | V > |^2 =/= 1 .
+    
+endm
+
+--- [Test] CNOT (control = |0>, target = |psi>)
+red checkCNOT|0>|psi>(pattern(3, < 0 @ |0> > < 1 @ |psi> >,
+            X?(3, 2)
+            Z?(3, 1)
+            Z?(0, 1)
+            (zeroB, nil)[M(2, 0pi)](zeroB, nil)
+            (zeroB, nil)[M(1, 0pi)](zeroB, nil) 
+            E(0,2) E(1,2) E(2,3)
+        )) .
+
+--- [Test] CNOT (control = |1>, target = |psi>)
+red checkCNOT|1>|psi>(pattern(3, < 0 @ |1> > < 1 @ |psi> >,
+            X?(3, 2)
+            Z?(3, 1)
+            Z?(0, 1)
+            (zeroB, nil)[M(2, 0pi)](zeroB, nil)
+            (zeroB, nil)[M(1, 0pi)](zeroB, nil) 
+            E(0,2) E(1,2) E(2,3)
+        )) .
+
+--- [Test] CNOT (control = |+>, target = |psi>)
+red checkCNOT|+>|psi>(pattern(3, < 0 @ |+> > < 1 @ |psi> >,
+            X?(3, 2)
+            Z?(3, 1)
+            Z?(0, 1)
+            (zeroB, nil)[M(2, 0pi)](zeroB, nil)
+            (zeroB, nil)[M(1, 0pi)](zeroB, nil) 
+            E(0,2) E(1,2) E(2,3)
+        )) .
+
+--- [Test] CNOT (control = |psi>, target = |0>)
+red checkCNOT|psi>|0>(pattern(3, < 0 @ |psi> > < 1 @ |0> >,
+            X?(3, 2)
+            Z?(3, 1)
+            Z?(0, 1)
+            (zeroB, nil)[M(2, 0pi)](zeroB, nil)
+            (zeroB, nil)[M(1, 0pi)](zeroB, nil) 
+            E(0,2) E(1,2) E(2,3)
+        )) .

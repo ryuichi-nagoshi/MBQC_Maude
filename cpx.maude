@@ -80,7 +80,6 @@ endfm
 
 fmod CPX is
     pr REAL .
-    ---pr EXT-BOOL .---NOT use?
 
     sorts Cpx Imag NzImag NzCpx .
     subsort Real < Cpx .
@@ -110,9 +109,9 @@ fmod CPX is
     --- absolute square
     op |_|^2 : Cpx -> Real .
     op |_|^2 : NzCpx -> PosReal .
-    --- [todo] not support sqrt for complex numbers
+    --- 
     op sqrt : NzImag -> Cpx .
-    --- eq sqrt(-1) = 1 i .
+    
 
     vars Rt Rt1 Rt2 : Rat .
     vars R R1 R2 S S1 S2 : Real .
@@ -128,34 +127,35 @@ fmod CPX is
     
     *** minus properties
     eq .- C = (-1) .* C .
-    
+
     *** additive properties
     eq (R i) .+ (S i) = (R .+ S) i .
-    
+    eq A .* I1 .+ A .* I2 = A .* (I1 .+ I2) .
     --- [symbolic]
     eq C .+ 0 = C .
     ceq R1 .* C .+ R2 .* C = (R1 .+ R2) .* C if not C :: Real .
     ceq C .+ R .* C = (R .+ 1) .* C if not C :: Real .
     ceq C .+ C = 2 .* C if not C :: Real .
-    
+    eq A .+ ((-1) .* A) = 0 .
     *** distributive law
-    eq A .* (B .+ C)  = (A .* B) .+ (A .* C) .
-
+    eq A .* (B .+ C)  = (A .* B) .+ (A .* C) . 
+    eq R .* (B .+ C)  = (R .* B) .+ (R .* C) .
     *** multiplicative properties
     eq R .* (S i) = (R .* S) i .
     eq (R i) .* (S i) = .- (R .* S) .
+    eq ((R i) .+ S) .* C = (R i) .* C .+ S .* C . 
     --- [symbolic]
     eq C .* 0 = 0 .
     eq C .* 1 = C .
     eq C' .* (1 ./ C') = 1 .
-
+    
     *** division properties
     --- divide a non real number
     eq (S' i) ./ R'' = (S' ./ R'') i .
     eq (R' .+ (S' i)) ./ R'' = (R' ./ R'') .+ ((S' ./ R'') i) .
     --- divide a complex number
     eq A ./ (R' i) = A .* (((- 1) ./ R') i) .
-    eq A ./ (R'' .+ (R' i)) = A * ((R'' ./ |(R'' .+ (R' i))|^2) .+ (((.- R') ./ |(R'' .+ (R' i))|^2) i)) .
+    eq A ./ (R'' .+ (R' i)) = A .* ((R'' ./ |(R'' .+ (R' i))|^2) .+ (((.- R') ./ |(R'' .+ (R' i))|^2) i)) .
     --- [symbolic]
     ceq C ./ C' = C .* (1 ./ C') if C =/= 1 .
     eq 1 ./ (C1' .* C2') = (1 ./ C1') .* (1 ./ C2') .

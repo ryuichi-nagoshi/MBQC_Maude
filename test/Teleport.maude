@@ -1,0 +1,33 @@
+
+load mbqc-lang.maude
+
+mod checker is 
+    pr POSTPROCESS .
+    pr MEASURE .
+    pr MBQC-LANG .
+
+    var V  : Vect .
+    var LB : List{TRIV2BIT} .
+    var LN : List{TRIV2PNAT} .
+    var LOC : List{TRIV2OUTCOME} . 
+
+    --- targetState: |psi>  
+    --- input: |psi> 
+    op checkTlp : List{TRIV2OUTCOME} -> MyBool .
+
+    eq checkTlp((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkTlp([LB , LN , V] LOC) = checkTlp(LOC) if | < |psi> | V > |^2 == 1 .
+    ceq checkTlp([LB , LN , V] LOC) = false if | < |psi> | V > |^2 =/= 1 .
+
+   
+endm
+
+
+---[Test] Teleportation
+red checkTlp(pattern(2, < 0 @ |psi> >,
+            X?(2,1)
+            Z?(2,0)
+            (zeroB, nil)[M(1, 0pi)](zeroB, nil) 
+            (zeroB, nil)[M(0, 0pi)](zeroB, nil)
+            E(1,2) E(0,1)
+        )) .

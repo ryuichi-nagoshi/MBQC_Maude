@@ -1,0 +1,75 @@
+load measure.maude
+
+
+mod MBQC-LANG is
+    pr MEASURE .
+    pr PREPARATION .
+    pr POSTPROCESS .
+    pr LIST-GENERIC{TRIV2COMMAND} .
+
+    --- E(qubit1, qubit2)
+    op E : PNat PNat -> Command .
+    --- M(target, angle, s-const, s-vars, t-const, t-vars)
+    op (_,_)[M(_,_)](_,_) : Bit List{TRIV2PNAT} PNat AngReal Bit List{TRIV2PNAT} ->  Command .
+    --- X(target, s-vars)
+    op X? : PNat List{TRIV2PNAT} -> Command .
+    --- Z(target, s-vars)
+    op Z? : PNat List{TRIV2PNAT} -> Command .
+    --- pattern
+    op pattern : PNat List{TRIV2PAIRPV} List{TRIV2COMMAND} -> List{TRIV2OUTCOME} .
+    op runpattern : PNat  List{TRIV2COMMAND} Vect -> List{TRIV2OUTCOME} .
+    op runpattern : PNat  List{TRIV2COMMAND} List{TRIV2PAIRBV} -> List{TRIV2OUTCOME} .
+    
+
+    var N N1 N2 N3 : PNat . 
+    var C C1 C2 C3 C4 : Cpx .
+    var PV PV1 PV2 : PairBV .
+    var B B1 B2 B3 : Bit .
+    var K K1 K2 : Ket .
+    var V V1 V2 V3 V4 : Vect .
+    var ANG-X : AngReal .
+    var Oc1 : Outcome .
+    var CM CM1 CM2 : Command .
+    
+    var LV : List{TRIV2VECT} . 
+    var LB LB1 LB2 : List{TRIV2BIT} .
+    var LN LN1 LN2 : List{TRIV2PNAT} .
+    var LPPV : List{TRIV2PAIRPV} .
+    var LPBV : List{TRIV2PAIRBV} .
+    var LOC : List{TRIV2OUTCOME} .
+    var CL : List{TRIV2COMMAND} . 
+
+    ---evalDependency
+    op evalDep : Bit List{TRIV2PNAT} List{TRIV2BIT} -> Bit .
+    eq evalDep(B, nil, LB) = B .
+    eq evalDep(B, N LN, LB) = evalDep(B + retrieve(N, LB), LN, LB) .
+
+    ---Mdep
+    op Mdep : PNat PNat Bit List{TRIV2PNAT} Bit List{TRIV2PNAT} List{TRIV2PAIRBV} AngReal -> List{TRIV2PAIRBV} .
+    eq Mdep(N1, N2, B1, LN1, B2, LN2, nil, ANG-X) = nil .
+    eq Mdep(N1, N2, B1, LN1, B2, LN2, < LB, V > LPBV, ANG-X) 
+        = M(N1, N2, evalDep(B1, LN1, LB), evalDep(B2, LN2, LB), < LB, V >, ANG-X) Mdep(N1, N2, B1, LN1, B2, LN2, LPBV, ANG-X) .
+
+    --- run Input
+    eq pattern(N, LPPV, CL) = runpattern(N, CL, input(N, LPPV)) .
+
+    ---run E command
+    eq runpattern(N, CL E(N1,N2), V) = runpattern(N, CL , Ecmd(N, < N1 & N2 >, V)) .
+    ---run M command
+    ---run first time 
+    eq runpattern(N, CL (B2, LN2)[M(N1, ANG-X)](B1, LN1), V) = runpattern(N, CL, M(N1, N, B1, B2, < reset(N), V > , ANG-X)) . 
+    
+    eq runpattern(N, CL (B2, LN2)[M(N1, ANG-X)](B1, LN1), < LB, V > LPBV) = runpattern(N, CL, Mdep(N1, N, B1, LN1, B2, LN2, < LB, V > LPBV , ANG-X)) .
+                                            
+    ---run X command
+    eq runpattern(N, CL X?(N1, N2 LN), < LB, V > LPBV) = runpattern(N, CL X?(N1, LN), X?(N1, N2, N, < LB, V >  LPBV)) .
+    eq runpattern(N, CL X?(N1, nil), < LB, V > LPBV) = runpattern(N, CL, < LB, V > LPBV) .
+    
+    ---run Z command
+    eq runpattern(N, CL Z?(N1, N2 LN), < LB, V > LPBV) = runpattern(N, CL Z?(N1, LN), Z?(N1, N2, N, < LB, V >  LPBV)) .
+    eq runpattern(N, CL Z?(N1, nil), < LB, V > LPBV) = runpattern(N, CL, < LB, V > LPBV) .
+    
+    ---normalize
+    eq runpattern(N, nil, LPBV) = traceOut(LPBV) .
+
+endm

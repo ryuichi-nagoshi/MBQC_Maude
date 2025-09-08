@@ -1,0 +1,34 @@
+
+load mbqc-lang.maude
+
+mod Hadamard is 
+    pr POSTPROCESS .
+    pr MEASURE .
+    pr MBQC-LANG .
+
+    var V  : Vect .
+    var LB : List{TRIV2BIT} .
+    var LN : List{TRIV2PNAT} .
+    var LOC : List{TRIV2OUTCOME} . 
+
+   
+    --- Target State: H . |psi> 
+    --- Input: |psi> = alpha0 . |0> + beta0 . |1>  
+    op H|psi> : -> Vect .
+    eq H|psi> = (alpha0 .* 1 ./ sqrt(2) .+ beta0 .* 1 ./ sqrt(2)) . |0> + (alpha0 .* 1 ./ sqrt(2) .+ beta0 .* -1 .* 1 ./ sqrt(2)) . |1> .
+    
+    --- checker
+    op checkH : List{TRIV2OUTCOME} -> MyBool .
+    eq checkH((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkH([LB , LN , V] LOC) = checkH(LOC) if | < H|psi> | V > |^2 == 1 .
+    ceq checkH([LB , LN , V] LOC) = false if | < H|psi> | V > |^2 =/= 1 .
+
+   
+endm
+
+---[Test] Hadamard
+red checkH(pattern(1, < 0 @ |psi> >,
+            X?(1,0)
+            (zeroB,nil)[M(0,0pi)](zeroB,nil)
+            E(0,1)
+)) .

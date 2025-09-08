@@ -24,12 +24,12 @@ fmod BIT is
     var B : Bit .
 
     --- not
-    eq not(nullB) = nullB .
+    eq not(nullB) = nullB . ---error
     eq not(zeroB) = oneB .
     eq not(oneB) = zeroB .
 
     --- +
-    eq zeroB + B = B .
+    ceq zeroB + B = B if B =/= nullB .
     eq oneB + zeroB = oneB .
     eq oneB + oneB = zeroB .
 
@@ -90,10 +90,11 @@ fmod PairPP is ---  entanglement pair
     op <_&_> : PNat PNat -> PairPP .
 endfm 
 
+***(
 view TRIV2PairPP from TRIV to PairPP is --- LIST-GENERIC{TRIV2PairPP}
     sort Elt to PairPP .
 endv
-
+***)
 -----------------------------------------
 -----------------------------------------
 
@@ -112,3 +113,10 @@ view TRIV2OUTCOME from TRIV to OUTCOME is  --- LIST-GENERIC{TRIV2OUTCOME}
     sort Elt to Outcome .
 endv
 
+fmod COMMAND is 
+    sort Command .
+endfm
+
+view TRIV2COMMAND from TRIV to COMMAND is  --- LIST-GENERIC{TRIV2OUTCOME}
+    sort Elt to Command .
+endv

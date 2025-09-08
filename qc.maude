@@ -84,11 +84,22 @@ fmod MAT is
     op _x_ : Mat16 Vect16 -> Vect16 [ctor prec 31] .    
     op _x_ : Mat32 Vect32 -> Vect32 [ctor prec 31] .    
     op _x_ : Vect2 CoVect2 -> Mat2 [ctor prec 31] .
+    op _x_ : Vect4  CoVect4  -> Mat4  [ctor prec 31] .
+    op _x_ : Vect8  CoVect8  -> Mat8  [ctor prec 31] .
+    op _x_ : Vect16 CoVect16 -> Mat16 [ctor prec 31] .
+    op _x_ : Vect32 CoVect32 -> Mat32 [ctor prec 31] .
     op _x_ : CoVect2 Vect2 -> Cpx [ctor prec 31] .
+    op _x_ : CoVect4  Vect4  -> Cpx   [ctor prec 31] .
+    op _x_ : CoVect8  Vect8  -> Cpx   [ctor prec 31] .
+    op _x_ : CoVect16 Vect16 -> Cpx   [ctor prec 31] .
+    op _x_ : CoVect32 Vect32 -> Cpx   [ctor prec 31] .
+
 
     op _x_ : CoVect2 Mat2 -> CoVect2 [ctor prec 31] .
     op _x_ : CoVect4 Mat4 -> CoVect4 [ctor prec 31] .
     op _x_ : CoVect8 Mat8 -> CoVect8 [ctor prec 31] .
+    op _x_ : CoVect16 Mat16 -> CoVect16 [ctor prec 31] .
+    op _x_ : CoVect32 Mat32 -> CoVect32 [ctor prec 31] .
 
     op _x_ : Mat2 Mat2 -> Mat2 [assoc prec 31] .
     op _x_ : Mat4 Mat4 -> Mat4 [assoc prec 31] .
@@ -158,8 +169,102 @@ fmod MAT is
     vars M''' M1''' M2''' M3''' M4''' : Mat16 .     
     vars M'''' M1'''' M2'''' M3'''' M4'''' : Mat32 .    
     vars VV VV1 VV2 VV3 : Vect .
+    vars CVV CVV1 CVV2 CVV3 : CoVect .
     vars MM MM1 MM2 MM3 MM4 : Mat .
 
+    --- adjoint
+    eq (I)^+ = I .
+    eq ((M)^+)^+ = M .
+    eq ((VV)^+)^+  = VV .
+    eq ((CVV)^+)^+ = CVV .
+
+    eq (|0>)^+ = <0| .
+    eq (|1>)^+ = <1| .
+    eq (<0|)^+ = |0> .
+    eq (<1|)^+ = |1> .
+
+    eq (C . V)^+ = (C)^* . (V)^+ .
+    eq (C . V')^+ = (C)^* . (V')^+ .
+    eq (C . V'')^+ = (C)^* . (V'')^+ .
+    eq (C . V''')^+ = (C)^* . (V''')^+ .
+    eq (C . V'''')^+ = (C)^* . (V'''')^+ .
+
+    eq (C . CV)^+ = (C)^* . (CV)^+ .
+    eq (C . CV')^+ = (C)^* . (CV')^+ .
+    eq (C . CV'')^+ = (C)^* . (CV'')^+ .
+    eq (C . CV''')^+ = (C)^* . (CV''')^+ .
+    eq (C . CV'''')^+ = (C)^* . (CV'''')^+ .
+
+    eq (V1 + V2)^+ = (V1)^+ + (V2)^+ .
+    eq (V1' + V2')^+ = (V1')^+ + (V2')^+ .
+    eq (V1'' + V2'')^+ = (V1'')^+ + (V2'')^+ .
+    eq (V1''' + V2''')^+ = (V1''')^+ + (V2''')^+ .
+    eq (V1'''' + V2'''')^+ = (V1'''')^+ + (V2'''')^+ .
+
+    eq (CV1 + CV2)^+ = (CV1)^+ + (CV2)^+ .
+    eq (CV1' + CV2')^+ = (CV1')^+ + (CV2')^+ .
+    eq (CV1'' + CV2'')^+ = (CV1'')^+ + (CV2'')^+ .
+    eq (CV1''' + CV2''')^+ = (CV1''')^+ + (CV2''')^+ .
+    eq (CV1'''' + CV2'''')^+ = (CV1'''')^+ + (CV2'''')^+ .
+
+
+    eq (|0> x <0|)^+ = |0> x <0| .
+    eq (|1> x <0|)^+ = |0> x <1| .
+    eq (|0> x <1|)^+ = |1> x <0| .
+    eq (|1> x <1|)^+ = |1> x <1| .
+   
+    eq <0| x |0> = 1 .
+    eq <1| x |1> = 1 .
+    eq <0| x |1> = 0 .
+    eq <1| x |0> = 0 .
+
+    eq (M x V)^+ = (V)^+ x (M)^+ .
+    eq (M' x V')^+ = (V')^+ x (M')^+ .
+    eq (M'' x V'')^+ = (V'')^+ x (M'')^+ .    
+    eq (M'''  x V''')^+  = (V''')^+  x (M''')^+  .
+    eq (M'''' x V'''')^+ = (V'''')^+ x (M'''')^+ .
+
+    eq (C . M)^+ = (C)^* . (M)^+ .
+    eq (C . M')^+ = (C)^* . (M')^+ .
+    eq (C . M'')^+ = (C)^* . (M'')^+ .
+    eq (C . M''')^+  = (C)^* . (M''')^+ .
+    eq (C . M'''')^+ = (C)^* . (M'''')^+ .
+
+    eq (M1 + M2)^+ = (M1)^+ + (M2)^+ .
+    eq (M1' + M2')^+ = (M1')^+ + (M2')^+ .
+    eq (M1'' + M2'')^+ = (M1'')^+ + (M2'')^+ .
+    eq (M1'''  + M2''')^+  = (M1''')^+  + (M2''')^+  .
+    eq (M1'''' + M2'''')^+ = (M1'''')^+ + (M2'''')^+ .
+
+    eq (M1 x M2)^+ = (M2)^+ x (M1)^+ .
+    eq (M1' x M2')^+ = (M2')^+ x (M1')^+ .
+    eq (M1'' x M2'')^+ = (M2'')^+ x (M1'')^+ .
+    eq (M1'''  x M2''')^+  = (M2''')^+  x (M1''')^+  .
+    eq (M1'''' x M2'''')^+ = (M2'''')^+ x (M1'''')^+ .
+
+    eq (M1 (x) M2)^+ = (M1)^+ (x) (M2)^+ .
+    eq (M1' (x) M2')^+ = (M1')^+ (x) (M2')^+ .
+    eq (M1'' (x) M2'')^+ = (M1'')^+ (x) (M2'')^+ .
+    eq (M1'''  (x) M2''')^+  = (M1''')^+  (x) (M2''')^+  .
+    eq (M1'''' (x) M2'''')^+ = (M1'''')^+ (x) (M2'''')^+ .
+
+    ---eq (V1 (x) V2)^+ = (V1)^+ (x) (V2)^+ .
+    ---eq (V1' (x) V2')^+ = (V1')^+ (x) (V2')^+ .
+    ---eq (V1'' (x) V2'')^+ = (V1'')^+ (x) (V2'')^+ .
+    ---eq (V1 (x) V2')^+ = (V1)^+ (x) (V2')^+ . ---下のやつでよい？
+    --- 
+    eq (VV1 (x) VV2)^+   = (VV1)^+  (x) (VV2)^+ .
+    eq (CVV1 (x) CVV2)^+ = (CVV1)^+ (x) (CVV2)^+ .
+    eq (MM1 (x) MM2)^+   = (MM1)^+  (x) (MM2)^+ .
+
+
+    eq (C . CVV) x VV = C .* (CVV x VV) .
+    eq CVV x (C . VV) = C .* (CVV x VV) .
+    eq (CVV1 + CVV2) x VV = (CVV1 x VV) .+ (CVV2 x VV) .
+    eq CVV x (VV1 + VV2) = (CVV x VV1) .+ (CVV x VV2) .
+
+    eq (CVV1 (x) CVV2) x (VV1 (x) VV2) = (CVV1 x VV1) .* (CVV2 x VV2) .
+    
     --- zero vector
     eq 0 . V = O2 .
     eq C . O2 = O2 .
@@ -187,6 +292,7 @@ fmod MAT is
     
     eq C . O16 = O16 . 
     eq C . O32 = O32 .
+    eq C . O = O .
 
     eq M''' x O16 = O16 .
     eq M'''' x O32 = O32 .
@@ -369,12 +475,8 @@ fmod MAT is
     eq [mul-MM2] : M1'' x (C . M2'') = C . (M1'' x M2'') .
     eq [mul-MM1] : (C . M1''') x M2''' = C . (M1''' x M2''') .
     eq [mul-MM2] : M1''' x (C . M2''') = C . (M1''' x M2''') .
-    --- eq [mul-MM3] : (K1 x B1) x (K2 x B2) = < (B1)^+, K2 > . (K1 x B2) .
-    eq [mul-MM4] : (MM1 (x) MM2) x (MM3 (x) MM4) = (MM1 x MM3) (x) (MM2 x MM4) .  --- befor eq [mul-MM4] : (MM1 (x) MM2) x (M3 (x) M4) = (M1 x M3) (x) (M2 x M4) .
-    --- eq [mul-MM4-1] : ((K1 x B1) (x) M1) x ((K2 x B2) (x) M2) = ((K1 x B1) x (K2 x B2)) (x) (M1 x M2) .
-    --- eq [mul-MM4-2] : ((K1 x B1) (x) M1) x (I (x) M2) = (K1 x B1) (x) (M1 x M2) .
-    --- eq [mul-MM4-3] : (I (x) M1) x ((K2 x B2) (x) M2) = (K2 x B2) (x) (M1 x M2) .
-    eq [mul-MM4-4] : (I (x) M1) x (I (x) M2) = I (x) (M1 x M2) .
+    eq [mul-MM4] : (MM1 (x) MM2) x (MM3 (x) MM4) = (MM1 x MM3) (x) (MM2 x MM4) .
+    eq [mul-MM4] : (I (x) M1) x (I (x) M2) = I (x) (M1 x M2) .
     
     --- tensor product normal forms
     eq [tensor-V1] : (C . VV1) (x) VV2 = C . (VV1 (x) VV2) .
@@ -389,7 +491,7 @@ fmod MAT is
     --- tensor distributes over addition
     eq [dist-tensor-V1] : VV1 (x) (VV2 + VV3) = VV1 (x) VV2 + VV1 (x) VV3 .
     eq [dist-tensor-V2] : (VV1 + VV2) (x) VV3 = VV1 (x) VV3 + VV2 (x) VV3 .
-    eq [dist-tensor-V1] : VV1 (x) ((C1 . VV2) + (C2 . VV3)) = C1 . (VV1 (x) VV2) + C2 . (VV1 (x) VV3) . ---add 5/28
+    eq [dist-tensor-V1] : VV1 (x) ((C1 . VV2) + (C2 . VV3)) = C1 . (VV1 (x) VV2) + C2 . (VV1 (x) VV3) . 
 
     eq [dist-tensor-CV1] : CV1 (x) (CV2 + CV3) = CV1 (x) CV2 + CV1 (x) CV3 .
     eq [dist-tensor-CV2] : (CV1 + CV2) (x) CV3 = CV1 (x) CV3 + CV2 (x) CV3 .
@@ -403,14 +505,23 @@ fmod MAT is
     eq [dist-tensor-M2] : (M1'' + M2'') (x) MM = M1'' (x) MM + M2'' (x) MM .
     eq [dist-tensor-M2] : (M1''' + M2''') (x) MM = M1''' (x) MM + M2''' (x) MM .
 
-    --- M x (C . (V1 + V2)) = C . (M x V1 + M x V2) の形のルールを追加
     eq M x (C . (V1 + V2)) = C . (M x V1 + M x V2) .
     eq M' x (C . (V1' + V2')) = C . (M' x V1' + M' x V2') .
     eq M'' x (C . (V1'' + V2'')) = C . (M'' x V1'' + M'' x V2'') .
     eq M''' x (C . (V1''' + V2''')) = C . (M''' x V1''' + M''' x V2''') .
     eq M'''' x (C . (V1'''' + V2'''')) = C . (M'''' x V1'''' + M'''' x V2'''') .
 
+    --- 
+    op <_|_> : Vect Vect -> Cpx .
+    eq < VV1 | VV2 > = ((VV1)^+) x VV2 .
 
+    --- Vector norm (returns Real)
+    op ||_|| : Vect -> Real .
+    eq || VV || = sqrt(| < VV | VV > |) .
+
+    op norm : Vect -> Vect .
+    ceq norm(VV) = 0 . VV if VV == O .
+    ceq norm(VV) = 1 ./ || VV || . VV if VV =/= O .
 
 endfm
 
@@ -482,9 +593,6 @@ fmod QC is
     eq  [I4] : I(suc(suc(N))) = I(1) (x) I(suc(N)) .
     eq  [I-test1] : I(0) (x) MM = MM .
     eq  [I-test1] : MM (x) I(0) = MM .
-    ---eq  [I5] : I(N) x I(N) = I(N) .
-    ---eq  [I6] : (I(N) (x) M1) x (I(N) (x) M2) = I(N) (x) (M1 x M2) .
-    ---eq  [I7] : (M1 (x) I(N)) x (M2 (x) I(N)) = (M1 x M2) (x) I(N) .
     --- quantum gates
     ops P0 P1 X Y Z H S Sdg T Tdg : PNat PNat -> Mat . 
     mb P0(N,0) : Mat2 .
@@ -550,7 +658,6 @@ fmod QC is
     mb Tdg(N,4) : Mat32 .
 
     ops CX CY CZ SWAP : PNat PNat PNat -> Mat .
-    --- ops CCX CCZ CSWAP : PNat PNat PNat PNat -> Mat .
 
     --- single-qubit gates
     eq [P0] : P0(N1,N2) = I(N1) (x) |0><0| (x) I(N2 - N1) .
@@ -569,8 +676,4 @@ fmod QC is
     eq [CZ]    : CZ(N1,N2,N3) = (P0(N1,N3) + (P1(N1,N3) x Z(N2,N3))) .
     eq [SWAP]  : SWAP(N1,N2,N3) = (CX(N1,N2,N3) x CX(N2,N1,N3) x CX(N1,N2,N3)) .
 
-    --- three-qubit gates
-    --- eq [CCX]   : CCX(N1, N2, N3) = (P0(N1) + (P1(N1) x CX(N2, N3))) .
-    --- eq [CCZ]   : CCZ(N1, N2, N3) = (P0(N1) + (P1(N1) x CZ(N2, N3))) .
-    --- eq [CSWAP] : CSWAP(N1, N2, N3) = (P0(N1) + (P1(N1) x SWAP(N2,N3))) .
 endfm

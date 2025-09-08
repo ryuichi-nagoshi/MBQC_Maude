@@ -1,0 +1,33 @@
+mod GHZ is 
+    pr POSTPROCESS .
+    pr MEASURE .
+    pr MBQC-LANG .
+
+    var V  : Vect .
+    var LB : List{TRIV2BIT} .
+    var LN : List{TRIV2PNAT} .
+    var LOC : List{TRIV2OUTCOME} .  
+
+    --- TargetState: |GHZ>  
+    --- Input: none
+    op |GHZ> : -> Vect .
+    eq |GHZ> = (1 ./ sqrt(2)) . (|0> (x) |0> (x) |0> + |1> (x) |1> (x) |1>) .
+
+    ---checker
+    op checkGHZ : List{TRIV2OUTCOME} -> MyBool .
+    eq checkGHZ((nil).List{TRIV2OUTCOME}) = true .
+    ceq checkGHZ([LB , LN , V]  LOC) = checkGHZ(LOC) if | < |GHZ> | V > |^2 == 1 .
+    ceq checkGHZ([LB , LN , V]  LOC) = false if | < |GHZ> | V > |^2 =/= 1 .
+
+endm
+
+
+
+---[Test] GHZ
+red checkGHZ(pattern(4, nil,
+           X?(4, 1 3)
+           X?(2,1)
+           (zeroB, nil)[M(3, 0pi)](zeroB, nil)
+           (zeroB, nil)[M(1, 0pi)](zeroB, nil)
+           E(3,4) E(2,3) E(1,2) E(0,1) 
+        )) .

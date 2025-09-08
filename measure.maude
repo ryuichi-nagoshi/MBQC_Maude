@@ -27,9 +27,13 @@ fmod MEASURE is
     var PV PV1 PV2 : PairBV .
     var LPBV : List{TRIV2PAIRBV} .
 
-    ---
-    ops alpha0 alpha1 beta0 beta1 : -> Cpx .
-    eq C .* (alpha0 .* (alpha0)^*) .+ C .* (beta0 .* (beta0)^*) = C .* 1 .
+    ---symbolic
+    ops alpha0 beta0 : -> Cpx .
+    eq (alpha0 .* (alpha0)^*) .+ (beta0 .* (beta0)^*) = 1 .
+    eq (alpha0 .* (alpha0)^*) .* C .+ (beta0 .* (beta0)^*) .* C = C .
+
+    op |psi> : -> Vect . 
+    eq |psi> = alpha0 . |0> + beta0 . |1> . 
 
     ---reset
     op reset : PNat -> List{TRIV2BIT} .
@@ -49,35 +53,52 @@ fmod MEASURE is
     eq retrieve(0, B  LB) = B .
     eq retrieve(suc(N), B  LB) = retrieve(N, LB) .
 
+    ---
+
     ---measure command
-    op M : PNat PNat Bit List{TRIV2PAIRBV} AngReal -> List{TRIV2PAIRBV} .
+    op M : PNat PNat Bit Bit List{TRIV2PAIRBV} AngReal -> List{TRIV2PAIRBV} .
     op preMeas : PNat PNat AngReal Bit -> Mat .  
-    ops Zbase pi0 pi/2 pi/4 : -> AngReal .
+    ops Zbase 0pi pi/2 pi/4 -pi/2 -pi/4 : -> AngReal .
     var ANG-X : AngReal .
 
     ---preMeas
-    eq preMeas(N1, N2, Zbase, B) = I(N1) (x) I(N2) .  --- Zbasis
-    eq preMeas(N1, N2, pi0, B) = H(N1,N2) .  --- Xbasis
+    eq preMeas(N1, N2, Zbase, B) = I(N1) (x) I(1) (x) I(N2 - N1) .  --- Zbasis
+    eq preMeas(N1, N2, 0pi, B) = H(N1,N2) .  --- Xbasis
+    
     --- pi/2
-    eq preMeas(N1, N2, pi/2, nullB) = H(N1,N2) x Sdg(N1,N2) .
     eq preMeas(N1, N2, pi/2, zeroB) = H(N1,N2) x Sdg(N1,N2) . 
     eq preMeas(N1, N2, pi/2, oneB) = H(N1,N2) x S(N1,N2) . 
+    
+    --- -pi/2
+    eq preMeas(N1, N2, -pi/2, B) = preMeas(N1, N2, pi/2, not(B)) .
+
+    
     ---pi/4
-    eq preMeas(N1, N2, pi/4, nullB) = H(N1,N2) x Tdg(N1,N2) .
     eq preMeas(N1, N2, pi/4, zeroB) = H(N1,N2) x Tdg(N1,N2) .
     eq preMeas(N1, N2, pi/4, oneB) = H(N1,N2) x T(N1,N2) .
     
-    --- 
-    eq M(N1, N2, B, nil, ANG-X) =  nil .
+    --- -pi/4
+    eq preMeas(N1, N2, -pi/4, B) = preMeas(N1, N2, pi/4, not(B)) .
 
-    ceq M(N1, N2, B, < LB , V >  LPBV, ANG-X) 
-    =  < insert(N1, zeroB, LB), P0(N1,N2) x (preMeas(N1, N2, ANG-X, B) x V) > 
-     < insert(N1, oneB,  LB),P1(N1,N2) x (preMeas(N1, N2, ANG-X, B) x V) > 
-     M(N1, N2, B, LPBV, ANG-X) 
-    if retrieve(N1, LB) == nullB = true .
+    --- 
+    eq M(N1, N2, B1, B2, nil, ANG-X) =  nil .
+
+    ceq M(N1, N2, B1, B2, < LB , V >  LPBV, ANG-X) 
+    =  < insert(N1, zeroB, LB), P0(N1,N2) x (preMeas(N1, N2, ANG-X, B1) x V) > 
+     < insert(N1, oneB,  LB), P1(N1,N2) x (preMeas(N1, N2, ANG-X, B1) x V) > 
+     M(N1, N2, B1, B2, LPBV, ANG-X)  
+    if retrieve(N1, LB) == nullB = true /\ B2 == zeroB .
+
+    ceq M(N1, N2, B1, B2, < LB , V >  LPBV, ANG-X) 
+    =  < insert(N1, zeroB, LB), P1(N1,N2) x (preMeas(N1, N2, ANG-X, B1) x V) > 
+     < insert(N1, oneB,  LB), P0(N1,N2) x (preMeas(N1, N2, ANG-X, B1) x V) > 
+     M(N1, N2, B1, B2, LPBV, ANG-X) 
+    if retrieve(N1, LB) == nullB = true /\ B2 == oneB .
+
 
     --- err
-    ceq M(N1, N2, B, < LB , V >  LPBV, ANG-X) = errCmd if retrieve(N1, LB) == nullB = false .   
+    ceq M(N1, N2, B1, B2, < LB , V >  LPBV, ANG-X) = errCmd if retrieve(N1, LB) =/= nullB or B1 == nullB or B2 == nullB .   
+
 
 
     ---X?
@@ -86,38 +107,40 @@ fmod MEASURE is
     
     eq X?(N1, N2, N3, nil) = nil .
     ceq X?(N1, N2, N3, < LB, V >  LPBV) = errCmd if retrieve(N2,LB) == nullB = true .
-    ceq X?(N1, N2, N3, < LB, V >  LPBV) = < LB, X(N1, N3) x V >  X?(N1, N2, N3, LPBV) if retrieve(N2,LB) == oneB = true .
-    ceq X?(N1, N2, N3, < LB, V >  LPBV) = < LB, V >  X?(N1, N2, N3, LPBV) if retrieve(N2,LB) == zeroB = true .
+    ceq X?(N1, N2, N3, < LB, V >  LPBV) = errCmd if retrieve(N1,LB) =/= nullB = true .
+    ceq X?(N1, N2, N3, < LB, V >  LPBV) = < LB, X(N1, N3) x V >  X?(N1, N2, N3, LPBV) if retrieve(N1,LB) == nullB = true /\ retrieve(N2,LB) == oneB = true .
+    ceq X?(N1, N2, N3, < LB, V >  LPBV) = < LB, V >  X?(N1, N2, N3, LPBV) if retrieve(N1,LB) == nullB = true /\ retrieve(N2,LB) == zeroB = true .
 
     ---Z?
     op Z? : PNat PNat PNat List{TRIV2PAIRBV} -> List{TRIV2PAIRBV} . --- N1: target bit, N2: measured bit ,　N3: V
 
     eq Z?(N1, N2, N3, nil) = nil .
     ceq Z?(N1, N2, N3, < LB, V >  LPBV) = errCmd if retrieve(N2,LB) == nullB = true .
-    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = < LB, Z(N1, N3) x V >  Z?(N1, N2, N3, LPBV) if retrieve(N2,LB) == oneB = true .
-    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = < LB, V >  Z?(N1, N2, N3, LPBV) if retrieve(N2,LB) == zeroB = true .
+    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = errCmd if retrieve(N1,LB) =/= nullB = true .
+    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = < LB, Z(N1, N3) x V >  Z?(N1, N2, N3, LPBV) if retrieve(N1,LB) == nullB = true /\ retrieve(N2,LB) == oneB = true .
+    ceq Z?(N1, N2, N3, < LB, V >  LPBV) = < LB, V >  Z?(N1, N2, N3, LPBV) if retrieve(N1,LB) == nullB = true /\ retrieve(N2,LB) == zeroB = true .
    
 endfm
 
 ------------------------------------------------------------------------
 ------------------------------------------------------------------------
 
-mod COMMAND is 
+mod PREPARATION is 
 
     pr MEASURE . 
     pr PAIRPV .
     pr LIST-GENERIC{TRIV2PAIRPV} . 
     pr PairPP .
-    pr LIST-GENERIC{TRIV2PairPP} .
+    ---pr LIST-GENERIC{TRIV2PairPP} .
 
 
     sort Err&List .
     subsort List{TRIV2VECT} < Err&List .
          
-    ops |+> |-> |psi> : -> Vect . 
+    ops |+> |-> : -> Vect . 
     eq |+> = 1 ./ sqrt(2) . (|0> + |1>) .
     eq |-> = 1 ./ sqrt(2) . (|0> + (-1 . |1>)) .
-    eq |psi> = alpha0 . |0> + beta0 . |1> .
+
 
     var PPV : PairPV .
     vars N N1 N2 : PNat . 
@@ -162,12 +185,10 @@ mod COMMAND is
 
     ------------------------------------------------------------
     --- entanglement command
-    op Ecmd : PNat List{TRIV2PairPP} Vect -> Vect . 
+    op Ecmd : PNat PairPP Vect -> Vect . 
     
-    var LPIJ : List{TRIV2PairPP} .
-    
-    eq Ecmd(N, nil, V) = V .
-    eq Ecmd(N, (< N1 & N2 >  LPIJ), V) = Ecmd(N, LPIJ, CZ(N1, N2, N) x V) .
+    ---eq Ecmd(N, nil, V) = V .
+    eq Ecmd(N, < N1 & N2 >, V) = CZ(N1, N2, N) x V .
 
 endm
 
@@ -175,7 +196,7 @@ endm
 
 mod POSTPROCESS is
     pr MEASURE .
-    pr COMMAND .
+    pr PREPARATION .
     pr LIST-GENERIC{TRIV2OUTCOME} .
     pr LIST-GENERIC{TRIV2PAIRBV} .
 
@@ -191,28 +212,10 @@ mod POSTPROCESS is
     var LN : List{TRIV2PNAT} .
     var LPBV : List{TRIV2PAIRBV} .
 
-  
-    ---inner product
-    op <_|_> : Vect Vect -> Cpx .
-    eq < |0> | |0> > = 1 .
-    eq < |0> | |1> > = 0 .
-    eq < |1> | |0> > = 0 .
-    eq < |1> | |1> > = 1 .
-    eq (< V1 | V2 >)^* = < V2 | V1 > .
-    eq < C . V1 | V2 > = (C)^* .* < V1 | V2 > .
-    eq < V1 | C . V2 > = C .* (< V1 | V2 >) .
-    eq < V1 + V2 | V3 > = < V1 | V3 > .+ < V2 | V3 > .
-    eq < V1 | V2 + V3 > = < V1 | V2 > .+ < V1 | V3 > .
-    eq < V1 (x) V2 | V3 (x) V4 > = < V1 | V3 > .* < V2 | V4 > .
-
-    ---norm
-    op ||_|| : Vect -> Real .
-    eq || V || = sqrt(< V | V >) .
-
     ------------------------------------------------
     op traceOut : List{TRIV2PAIRBV} -> List{TRIV2OUTCOME} .
     eq traceOut(nil) = nil .
-    ceq traceOut(< LB, V >  LPBV) = [LB , ri(LB) ,  ((1 ./ || traceV(V, ri(LB)) ||) . traceV(V, ri(LB)))]  traceOut(LPBV) if not((traceV(V, ri(LB)) == O)) .
+    eq traceOut(< LB, V >  LPBV) = [LB , ri(LB) ,  norm(traceV(V, ri(LB)))]  traceOut(LPBV)  .
 
     ------------------------------------------------
     --- remember Indeces
