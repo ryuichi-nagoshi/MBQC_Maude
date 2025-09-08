@@ -14,10 +14,10 @@ in Teleport.maude
 ## Case Studies
 We successfully verified the correctness of several patterns using this tool:
 
-- Hadamard gate
+- Hadamard
 - Quantum Teleportation
 - X-rotation
 - Z-rotation
-- CNOT gate
+- CNOT
 - General rotation
 - GHZ
