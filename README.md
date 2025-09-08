@@ -12,7 +12,7 @@ in Teleport.maude
 ```
 
 ## Case Studies
-We have successfully verified several patterns using this tool.
+We successfully verified the correctness of several patterns using this tool:
 
 - Hadamard gate
 - Quantum Teleportation
